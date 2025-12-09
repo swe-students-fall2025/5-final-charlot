@@ -28,7 +28,7 @@ def authenticate_user(username: str, password: str) -> models.User:
     """Verify username and password"""
 
     user = find_user_by_username(username)
-    if not user or not verify_password(password, user["password_hash"]):
+    if not user or not verify_password(password, user.password_hash):
         raise ValueError("Incorrect username or password")
     return models.User.model_validate(user)
 
