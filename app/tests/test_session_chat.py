@@ -1,7 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
+
+from app.db import sessions_collection, users_collection
 from app.main import app
-from app.db import users_collection, sessions_collection
 
 client = TestClient(app)
 
@@ -51,17 +52,17 @@ def test_list_sessions(auth_header):
     # Create two sessions
     resp1 = client.post("/sessions/", headers=auth_header)
     session_id_1 = resp1.json()["session_id"]
-    
+
     resp2 = client.post("/sessions/", headers=auth_header)
     session_id_2 = resp2.json()["session_id"]
-    
+
     # List sessions
     resp = client.get("/sessions/", headers=auth_header)
     assert resp.status_code == 200
     data = resp.json()
     assert "sessions" in data
     assert len(data["sessions"]) == 2
-    
+
     session_ids = [s["session_id"] for s in data["sessions"]]
     assert session_id_1 in session_ids
     assert session_id_2 in session_ids
@@ -78,7 +79,7 @@ def test_chat_in_session(auth_header):
     # Create session
     resp = client.post("/sessions/", headers=auth_header)
     session_id = resp.json()["session_id"]
-    
+
     # Send chat message
     chat_resp = client.post(
         "/chat/",
@@ -119,21 +120,21 @@ def test_multiple_messages_in_session(auth_header):
     # Create session
     resp = client.post("/sessions/", headers=auth_header)
     session_id = resp.json()["session_id"]
-    
+
     # Send first message
     client.post(
         "/chat/",
         json={"session_id": session_id, "message": "First message"},
         headers=auth_header,
     )
-    
+
     # Send second message
     resp2 = client.post(
         "/chat/",
         json={"session_id": session_id, "message": "Second message"},
         headers=auth_header,
     )
-    
+
     # Should have 4 messages total (2 user + 2 ai)
     assert len(resp2.json()["messages"]) == 4
 
@@ -143,12 +144,12 @@ def test_upload_file_to_session(auth_header):
     # Create session
     resp = client.post("/sessions/", headers=auth_header)
     session_id = resp.json()["session_id"]
-    
+
     # Create a test file
     file_content = b"Test file content"
     files = {"file": ("test.txt", file_content, "text/plain")}
     data = {"session_id": session_id}
-    
+
     # Upload file
     upload_resp = client.post(
         "/upload/",
@@ -167,7 +168,7 @@ def test_upload_unauthorized():
     """Test that uploading without auth fails"""
     files = {"file": ("test.txt", b"content", "text/plain")}
     data = {"session_id": "fake-id"}
-    
+
     resp = client.post("/upload/", files=files, data=data)
     assert resp.status_code == 401
 
@@ -176,7 +177,7 @@ def test_upload_to_nonexistent_session(auth_header):
     """Test that uploading to non-existent session fails"""
     files = {"file": ("test.txt", b"content", "text/plain")}
     data = {"session_id": "fake-session-id"}
-    
+
     resp = client.post(
         "/upload/",
         files=files,

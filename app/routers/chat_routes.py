@@ -2,8 +2,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..deps import get_current_user
 from ..db import add_message_to_session, get_session
+from ..deps import get_current_user
 from ..models import ChatRequest, ChatResponse, Message
 
 router = APIRouter(prefix="/chat", tags=["chat"])

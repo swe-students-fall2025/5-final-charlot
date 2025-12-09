@@ -1,7 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
+
+from app.db import sessions_collection, users_collection
 from app.main import app
-from app.db import users_collection, sessions_collection
 
 client = TestClient(app)
 
@@ -35,7 +36,7 @@ def test_register_duplicate_email():
         "/auth/register",
         json={"email": "test@example.com", "password": "password123"},
     )
-    
+
     # Try to register again with same email
     resp = client.post(
         "/auth/register",
@@ -52,7 +53,7 @@ def test_login_success():
         "/auth/register",
         json={"email": "test@example.com", "password": "password123"},
     )
-    
+
     # Login
     resp = client.post(
         "/auth/login",
@@ -72,7 +73,7 @@ def test_login_wrong_password():
         "/auth/register",
         json={"email": "test@example.com", "password": "password123"},
     )
-    
+
     # Try login with wrong password
     resp = client.post(
         "/auth/login",

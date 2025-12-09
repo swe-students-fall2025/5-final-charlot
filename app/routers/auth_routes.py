@@ -1,46 +1,73 @@
-from datetime import timedelta
+"""Authorization routes for the web app"""
 
-from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from flask import Blueprint, request
+from flask_login import current_user, login_required, login_user, logout_user
 
-from ..auth import (
-    create_user_id,
-    get_password_hash,
-    authenticate_user,
-    create_access_token,
-)
-from ..config import get_settings
-from ..db import create_user, find_user_by_email
-from ..models import UserCreate, Token
+from app import models
+from app.db import create_user, find_user_by_id, find_user_by_username
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-_settings = get_settings()
+auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(user: UserCreate):
-    existing = find_user_by_email(user.email)
+@auth_bp.route("/register", methods=["POST"])
+def register():
+    """Registration route"""
+
+    if current_user.is_authenticated:
+        return "User already logged in"
+
+    username = request.form["username"]
+    password = request.form["password"]
+
+    if not username or not password:
+        return "No user name or password"
+
+    existing = find_user_by_username(username)
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        return "Username already registered"
 
-    user_id = create_user_id()
-    password_hash = get_password_hash(user.password)
-    create_user(user_id, user.email, password_hash)
+    new_user = models.User({"username": username})
+    new_user.set_password(password)
 
-    return {"user_id": user_id, "email": user.email}
+    inserted = create_user(new_user)
+    new_user = find_user_by_id(inserted.inserted_id)
+
+    login_user(models.User(new_user))
+
+    return "Registered and logged in!"
 
 
-@router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    """Login route"""
 
-    access_token_expires = timedelta(
-        minutes=_settings.access_token_expire_minutes
-    )
-    access_token = create_access_token(
-        data={"sub": user["user_id"]},
-        expires_delta=access_token_expires,
-    )
-    return Token(access_token=access_token)
+    if current_user.is_authenticated:
+        return "User already logged in"
+
+    username = request.form["username"]
+    password = request.form["password"]
+
+    if not username or not password:
+        return "No user name or password"
+
+    user_data = find_user_by_username(username)
+
+    if not user_data:
+        return f"No user with username {username} found"
+
+    user = models.User(user_data)
+
+    if user.check_password(password):
+        login_user(user)
+        return "Login successful"
+
+    return "Incorrect password"
+
+
+@auth_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    """Logout current logged in user"""
+
+    logout_user()
+    return "Logged out"
