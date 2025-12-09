@@ -35,7 +35,7 @@
 #         "/auth/register",
 #         json={"email": "test@example.com", "password": "password123"},
 #     )
-    
+
 #     # Try to register again with same email
 #     resp = client.post(
 #         "/auth/register",
@@ -52,7 +52,7 @@
 #         "/auth/register",
 #         json={"email": "test@example.com", "password": "password123"},
 #     )
-    
+
 #     # Login
 #     resp = client.post(
 #         "/auth/login",
@@ -72,7 +72,7 @@
 #         "/auth/register",
 #         json={"email": "test@example.com", "password": "password123"},
 #     )
-    
+
 #     # Try login with wrong password
 #     resp = client.post(
 #         "/auth/login",

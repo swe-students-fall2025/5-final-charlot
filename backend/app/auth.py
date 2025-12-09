@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from jose import jwt
 import bcrypt
 
-from config import get_settings
-from db import find_user_by_username
-import models
+from backend.app.config import get_settings
+from backend.app.db import find_user_by_username
+import backend.app.models as models
 
 _settings = get_settings()
 

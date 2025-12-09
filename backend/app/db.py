@@ -4,7 +4,7 @@ from typing import Optional
 from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
-import models
+import backend.app.models as models
 
 from backend.app.config import get_settings
 
