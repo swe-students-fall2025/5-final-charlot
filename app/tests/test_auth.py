@@ -8,7 +8,8 @@ def test_register_success(test_client, mock_user_collection):
 
     with patch("app.routers.auth_routes.login_user") as mock_login:
         resp = test_client.post(
-            "/auth/register", data={"username": "random_username", "password": "random_password"}
+            "/auth/register",
+            data={"username": "random_username", "password": "random_password"},
         )
         assert resp.status_code == 201
         mock_login.assert_called_once()

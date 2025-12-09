@@ -1,10 +1,11 @@
 """Mocks client, db, and user"""
 
-from bson import ObjectId
+from unittest.mock import Mock, patch
+
 import pytest
+from bson import ObjectId
 
 from app import create_app
-from unittest.mock import patch, Mock
 
 
 @pytest.fixture
@@ -40,9 +41,7 @@ def mock_user_collection():
 
     with patch("app.db.db.users") as user_mock:
         user_mock.find_one = Mock(side_effect=side_effect_user)
-        user_mock.insert_one = Mock(
-            return_value=Mock(inserted_id=ObjectId(), acknowledged=True)
-        )
+        user_mock.insert_one = Mock(return_value=Mock(inserted_id=ObjectId(), acknowledged=True))
         yield user_mock
 
 

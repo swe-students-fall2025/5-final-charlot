@@ -7,9 +7,9 @@ from typing import Optional
 from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
-from app.routers.auth_routes import auth_bp
 
 from app import db, models
+from app.routers.auth_routes import auth_bp
 
 DIR = pathlib.Path(__file__).parent
 ROOT_DIR = DIR.parent
