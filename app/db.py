@@ -34,6 +34,7 @@ def create_user(user_data: models.User) -> InsertOneResult:
         {
             "username": user_data.username,
             "password_hash": user_data.password_hash,
+            "sessions": []
         }
     )
 
@@ -52,23 +53,27 @@ def find_user_by_id(user_id: str | ObjectId):
     return db.users.find_one({"_id": user_id})
 
 
-def create_session(session_id: str, user_id: str) -> InsertOneResult:
+def create_session(user_id: str) -> InsertOneResult:
     """Create a new chat session"""
 
-    return db.sessions.insert_one(
-        {
-            "session_id": session_id,
-            "user_id": user_id,
-            "messages": [],
-            "files": [],
-        }
-    )
-
-
-def list_sessions_for_user(user_id: str) -> list:
-    """Get all previous sessions for a user"""
-
-    return list(db.sessions.find({"user_id": user_id}))
+    with client.start_session() as mongo_session:
+        mongo_session.start_transaction()
+        res = db.sessions.insert_one(
+            {
+                "user_id": ObjectId(user_id),
+                "messages": [],
+                "files": []
+            }
+        )
+        user = db.users.find_one_and_update(
+            {"_id": ObjectId(user_id)},
+            {"$push": {"sessions": res.inserted_id}}
+        )
+        if not user:
+            mongo_session.abort_transaction()
+            raise ValueError("User does not exist")
+        mongo_session.commit_transaction()
+    return res
 
 
 def get_session(session_id: str, user_id: str):

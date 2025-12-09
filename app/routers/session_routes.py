@@ -1,18 +1,20 @@
-# from fastapi import APIRouter, Depends
+"""Routes to manage sessions"""
 
-# from ..auth import create_session_id
-# from ..db import create_session, list_sessions_for_user
-# from ..deps import get_current_user
-# from ..models import SessionCreateResponse, SessionListResponse, SessionSummary
+from app.db import create_session
+from flask import Blueprint
+from flask_login import current_user, login_required
 
-# router = APIRouter(prefix="/sessions", tags=["sessions"])
+session_bp = Blueprint("session", __name__, url_prefix="/session")
 
 
-# @router.post("/", response_model=SessionCreateResponse)
-# def create_new_session(current_user=Depends(get_current_user)):
-#     session_id = create_session_id()
-#     create_session(session_id, current_user["user_id"])
-#     return SessionCreateResponse(session_id=session_id)
+@session_bp.route("/create", methods=["POST"])
+@login_required
+def create_new_session():
+    """Create new chat session for currently logged in user"""
+
+    res = create_session(current_user.id)
+
+    return f"Session created: {str(res.inserted_id)}"
 
 
 # @router.get("/", response_model=SessionListResponse)

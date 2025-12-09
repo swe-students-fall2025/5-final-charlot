@@ -1,8 +1,9 @@
 """Models used throughout the web-app"""
 
-from dataclasses import dataclass
+# from dataclasses import dataclass
 
 import bcrypt
+from bson import ObjectId
 from flask_login import UserMixin
 
 
@@ -13,6 +14,7 @@ class User(UserMixin):
         self.id: str = str(user_data.get("_id", ""))
         self.username: str = user_data.get("username", "")
         self.password_hash: str = user_data.get("password_hash", "")
+        self.sessions: list[ObjectId] = user_data.get("sessions", [])
 
     def set_password(self, password: str):
         """Hash password and update both object + underlying dict"""
@@ -24,35 +26,33 @@ class User(UserMixin):
         return bcrypt.checkpw(password.encode("utf-8"), self.password_hash.encode("utf-8"))
 
 
-@dataclass
-class ChatRequest:
-    session_id: str
-    message: str
+# @dataclass
+# class ChatRequest:
+#     """User chat message"""
+
+#     session_id: str
+#     message: str
 
 
-@dataclass
-class Message:
-    role: str
-    message: str
-    timestamp: str
+# @dataclass
+# class Message:
+#     """Message payload"""
+
+#     role: str
+#     message: str
+#     timestamp: str
 
 
-@dataclass
-class ChatResponse:
-    session_id: str
-    messages: list[Message]
+# @dataclass
+# class ChatResponse:
+#     """Response message"""
+
+#     session_id: str
+#     messages: list[Message]
 
 
-@dataclass
-class SessionCreateResponse:
-    session_id: str
+# @dataclass
+# class SessionResponse:
+#     """Response from session data"""
 
-
-@dataclass
-class SessionSummary:
-    session_id: str
-
-
-@dataclass
-class SessionListResponse:
-    sessions: list[SessionSummary]
+#     session_id: str

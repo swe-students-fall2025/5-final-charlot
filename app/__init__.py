@@ -10,6 +10,7 @@ from flask_login import LoginManager
 
 from app import db, models
 from app.routers.auth_routes import auth_bp
+from app.routers.session_routes import session_bp
 
 DIR = pathlib.Path(__file__).parent
 ROOT_DIR = DIR.parent
@@ -38,7 +39,8 @@ def create_app():
 
         return models.User(user_data)
 
-    # Register auth blueprint
+    # Register blueprints
+    app.register_blueprint(session_bp, url_prefix="/session")
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
     @app.route("/")
