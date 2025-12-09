@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "our_flask_app"
+description = "A flask web app"
+version = "0.1.0"
+authors = [
+  { name="Samuel Yang", email="sy3638@nyu.edu" }
+]
+readme = "README.md"
+requires-python = "==3.13"
+dependencies = [
+  "flask",
+  "flask-login",
+  "flask-pymongo",
+  "python-dotenv",
+  "pymongo"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pylint"]
+
+[project.urls]
+"Homepage" = "https://github.com/swe-students-fall2025/5-final-charlot"
+"Repository" = "https://github.com/swe-students-fall2025/5-final-charlot.git"
+
+
+[tool.pytest.ini_options]
+minversion = "7.0" # minimum pytest version
+addopts = "-ra -q" # default pytest command line options
+pythonpath = [
+  "."
+]
+testpaths = [
+  "tests"
+]
