@@ -10,11 +10,10 @@ authors = [
   { name="Samuel Yang", email="sy3638@nyu.edu" }
 ]
 readme = "README.md"
-requires-python = "==3.13"
+requires-python = ">=3.13"
 dependencies = [
   "flask",
   "flask-login",
-  "flask-pymongo",
   "python-dotenv",
   "pymongo"
 ]
