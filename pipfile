@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = "*"
+pydantic = "*"
+python-jose = "*"
+bcrypt = "*"
+pymongo = "*"
+python-dotenv = "*"
+python-multipart = "*"
+email-validator = "*"
+httpx = "*"
+
+[dev-packages]
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[requires]
+python_version = "3.13"

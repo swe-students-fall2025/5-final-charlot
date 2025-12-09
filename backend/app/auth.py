@@ -1,37 +1,43 @@
-import uuid
+"""Authorization helper functions"""
+
 from datetime import datetime, timedelta
 
-from jose import jwt, JWTError
+from jose import jwt
 import bcrypt
 
-from .config import get_settings
-from .db import find_user_by_email
+from config import get_settings
+from db import find_user_by_username
+import models
 
 _settings = get_settings()
 
 
 def get_password_hash(password: str) -> str:
-    # Use bcrypt directly
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    """Generate a hash for a password"""
+
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    # Use bcrypt directly
-    return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
+    """Verify a password matches the hash"""
+
+    return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
 
 
-def authenticate_user(email: str, password: str):
-    user = find_user_by_email(email)
+def authenticate_user(username: str, password: str) -> models.User:
+    """Verify username and password"""
+
+    user = find_user_by_username(username)
     if not user or not verify_password(password, user["password_hash"]):
-        return None
-    return user
+        raise ValueError("Incorrect username or password")
+    return models.User.model_validate(user)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta) -> str:
+    """Create JWT access token"""
+
     to_encode = data.copy()
-    expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=_settings.access_token_expire_minutes)
-    )
+    expire = datetime.now() + expires_delta
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,
@@ -42,12 +48,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 def decode_access_token(token: str) -> dict:
+    """Decode JWT access token"""
+
     return jwt.decode(token, _settings.jwt_secret_key, algorithms=[_settings.jwt_algorithm])
 
-
-def create_user_id() -> str:
-    return str(uuid.uuid4())
-
-
-def create_session_id() -> str:
-    return str(uuid.uuid4())
+# def create_session_id() -> str:
+#     return str(uuid.uuid4())

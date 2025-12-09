@@ -1,44 +1,49 @@
 from datetime import timedelta
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..auth import (
-    create_user_id,
+from backend.app.auth import (
     get_password_hash,
     authenticate_user,
     create_access_token,
 )
-from ..config import get_settings
-from ..db import create_user, find_user_by_email
-from ..models import UserCreate, Token
+from backend.app.config import get_settings
+from backend.app.db import create_user, find_user_by_username
+from backend.app.models import UserCreate, Token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 _settings = get_settings()
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate):
-    existing = find_user_by_email(user.email)
+    """Register a new user"""
+
+    existing = find_user_by_username(user.username)
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=409, detail="Email already registered")
 
-    user_id = create_user_id()
     password_hash = get_password_hash(user.password)
-    create_user(user_id, user.email, password_hash)
+    created = create_user(user.username, password_hash)
 
-    return {"user_id": user_id, "email": user.email}
+    access_token_expires = timedelta(minutes=_settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        data={"sub": str(created.inserted_id)},
+        expires_delta=access_token_expires,
+    )
+    return Token(access_token=access_token)
 
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    try:
+        user = authenticate_user(form_data.username, form_data.password)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    access_token_expires = timedelta(
-        minutes=_settings.access_token_expire_minutes
-    )
+    access_token_expires = timedelta(minutes=_settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": user["user_id"]},
         expires_delta=access_token_expires,

@@ -1,10 +1,22 @@
-from typing import List
+"""Models used throughout the code"""
 
-from pydantic import BaseModel, EmailStr
+from typing import Optional, Annotated
+from pydantic import BaseModel, Field, BeforeValidator
+
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
+
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    username: str
     password: str
+
+
+class User(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    username: str
+    password_hash: str
+    sessions: Optional[list[PyObjectId]] = None
 
 
 class Token(BaseModel):
@@ -21,7 +33,7 @@ class SessionSummary(BaseModel):
 
 
 class SessionListResponse(BaseModel):
-    sessions: List[SessionSummary]
+    sessions: list[SessionSummary]
 
 
 class ChatRequest(BaseModel):
@@ -37,4 +49,4 @@ class Message(BaseModel):
 
 class ChatResponse(BaseModel):
     session_id: str
-    messages: List[Message]
+    messages: list[Message]
