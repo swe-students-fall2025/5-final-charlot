@@ -1,6 +1,6 @@
 # import pytest
 # from fastapi.testclient import TestClient
-# from backend.app.app import app
+# from app.app import app
 # from app.db import users_collection, sessions_collection
 
 # client = TestClient(app)

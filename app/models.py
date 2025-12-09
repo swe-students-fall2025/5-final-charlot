@@ -1,8 +1,8 @@
 """Models used throughout the code"""
 
-from typing import Optional, Annotated
-from pydantic import BaseModel, Field, BeforeValidator
+from typing import Annotated, Optional
 
+from pydantic import BaseModel, BeforeValidator, Field
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 

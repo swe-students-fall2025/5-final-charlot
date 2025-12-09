@@ -1,7 +1,8 @@
 """Main to run the app"""
 
 import uvicorn
-from backend.app import create_app
+
+from app import create_app
 
 app = create_app()
 

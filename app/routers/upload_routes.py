@@ -1,9 +1,9 @@
 import os
 
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
+from ..db import add_file_to_session, get_session
 from ..deps import get_current_user
-from ..db import get_session, add_file_to_session
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 

@@ -2,12 +2,12 @@
 
 from datetime import datetime, timedelta
 
-from jose import jwt
 import bcrypt
+from jose import jwt
 
-from backend.app.config import get_settings
-from backend.app.db import find_user_by_username
-import backend.app.models as models
+import app.models as models
+from app.config import get_settings
+from app.db import find_user_by_username
 
 _settings = get_settings()
 
@@ -51,6 +51,7 @@ def decode_access_token(token: str) -> dict:
     """Decode JWT access token"""
 
     return jwt.decode(token, _settings.jwt_secret_key, algorithms=[_settings.jwt_algorithm])
+
 
 # def create_session_id() -> str:
 #     return str(uuid.uuid4())
