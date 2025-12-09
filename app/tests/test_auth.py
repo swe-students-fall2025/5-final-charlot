@@ -25,6 +25,16 @@ def test_register_duplicate_email(test_client, mock_user_collection):
     assert resp.status_code == 409
 
 
+def test_register_no_input(test_client):
+    """Test that no input fails"""
+
+    resp = test_client.post(
+        "/auth/register",
+        data={},
+    )
+    assert resp.status_code == 400
+
+
 def test_logged_in_register(test_client):
     """Test register when already logged in"""
 
@@ -95,14 +105,19 @@ def test_logged_in_login(test_client):
         mock_login.assert_not_called()
 
 
-def test_logged_in_logout(test_client):
-    with patch("app.routers.auth_routes.logout_user") as mock_logout:
-        resp = test_client.get("/auth/logout")
-        assert resp.status_code == 401
-        mock_logout.assert_not_called()
+def test_login_no_input(test_client):
+    """Test that no input fails"""
+
+    resp = test_client.post(
+        "/auth/login",
+        data={},
+    )
+    assert resp.status_code == 400
 
 
 def test_logout(test_client):
+    """Test logout"""
+
     mock_user = Mock()
     mock_user.is_authenticated = True
     with (
@@ -112,3 +127,12 @@ def test_logout(test_client):
         resp = test_client.get("/auth/logout")
         assert resp.status_code == 204
         mock_logout.assert_called_once()
+
+
+def test_logged_out_logout(test_client):
+    """Test logout while not logged in"""
+
+    with patch("app.routers.auth_routes.logout_user") as mock_logout:
+        resp = test_client.get("/auth/logout")
+        assert resp.status_code == 401
+        mock_logout.assert_not_called()

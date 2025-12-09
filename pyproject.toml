@@ -15,12 +15,12 @@ dependencies = [
   "bcrypt",
   "flask",
   "flask-login",
-  "python-dotenv",
-  "pymongo"
+  "pymongo",
+  "python-dotenv"
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pylint"]
+dev = ["pytest", "pylint","pytest-cov"]
 
 [project.urls]
 "Homepage" = "https://github.com/swe-students-fall2025/5-final-charlot"

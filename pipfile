@@ -5,14 +5,15 @@ name = "pypi"
 
 [packages]
 bcrypt = "*"
-flask-login = "*"
 flask = "*"
-python-dotenv = "*"
+flask-login = "*"
 pymongo = "*"
+python-dotenv = "*"
 
 [dev-packages]
-pytest = "*"
 pylint = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.13"
