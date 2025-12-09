@@ -43,23 +43,16 @@ class ChatResponse:
     messages: list[Message]
 
 
-# class UserCreate(BaseModel):
-#     email: EmailStr
-#     password: str
+@dataclass
+class SessionCreateResponse:
+    session_id: str
 
 
-# class Token(BaseModel):
-#     access_token: str
-#     token_type: str = "bearer"
+@dataclass
+class SessionSummary:
+    session_id: str
 
 
-# class SessionCreateResponse(BaseModel):
-#     session_id: str
-
-
-# class SessionSummary(BaseModel):
-#     session_id: str
-
-
-# class SessionListResponse(BaseModel):
-#     sessions: List[SessionSummary]
+@dataclass
+class SessionListResponse:
+    sessions: list[SessionSummary]
