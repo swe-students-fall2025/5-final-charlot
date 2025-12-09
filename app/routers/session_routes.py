@@ -1,6 +1,6 @@
 """Routes to manage sessions"""
 
-from app.db import create_session
+from app.db import create_session, list_sessions_for_user
 from flask import Blueprint
 from flask_login import current_user, login_required
 
@@ -14,8 +14,16 @@ def create_new_session():
 
     res = create_session(current_user.id)
 
-    return f"Session created: {str(res.inserted_id)}"
+    return f"Session created: {str(res.inserted_id)}", 201
 
+
+@session_bp.route("/list", methods=["GET"])
+@login_required
+def get_sessions():
+    """Get list of all sessions for currently logged in user"""
+
+    sessions = list_sessions_for_user(current_user.id)
+    return sessions, 200
 
 # @router.get("/", response_model=SessionListResponse)
 # def get_sessions(current_user=Depends(get_current_user)):

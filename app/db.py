@@ -83,6 +83,12 @@ def get_session(session_id: str, user_id: str):
     return db.sessions.find_one(query)
 
 
+def list_sessions_for_user(user_id: str) -> list:
+    """Get all sessions for user"""
+
+    return db.users.find_one({"_id": ObjectId(user_id)})["sessions"]
+
+
 def add_message_to_session(session_id: str, role: str, message: str) -> UpdateResult:
     """Add a message to a chat session"""
 

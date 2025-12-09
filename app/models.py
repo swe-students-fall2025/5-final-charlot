@@ -3,7 +3,6 @@
 # from dataclasses import dataclass
 
 import bcrypt
-from bson import ObjectId
 from flask_login import UserMixin
 
 
@@ -14,7 +13,6 @@ class User(UserMixin):
         self.id: str = str(user_data.get("_id", ""))
         self.username: str = user_data.get("username", "")
         self.password_hash: str = user_data.get("password_hash", "")
-        self.sessions: list[ObjectId] = user_data.get("sessions", [])
 
     def set_password(self, password: str):
         """Hash password and update both object + underlying dict"""
@@ -49,10 +47,3 @@ class User(UserMixin):
 
 #     session_id: str
 #     messages: list[Message]
-
-
-# @dataclass
-# class SessionResponse:
-#     """Response from session data"""
-
-#     session_id: str
