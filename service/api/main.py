@@ -52,7 +52,7 @@ def _lazy_load_agent():
     if not INDEX_PATH.exists():
         raise RuntimeError(
             f"Vector index not found at {INDEX_PATH}. "
-            "Set VECTOR_DB_PATH environment variable or run build script."
+            "Please upload a document first or wait for index to build."
         )
 
     print(f"Loading ML agent from {INDEX_PATH}...")
@@ -68,6 +68,28 @@ def _lazy_load_agent():
 async def lifespan(app: FastAPI):
     print("ML Agent Service starting...")
     print(f"Vector DB path: {INDEX_PATH}")
+
+    # Auto-build index on first deployment if it doesn't exist
+    if not INDEX_PATH.exists():
+        print("Vector index not found. Building index from CUAD dataset...")
+        try:
+            from utils import load_documents, save_vectorstore
+
+            # Build with a reasonable number of contracts
+            print("Loading documents...")
+            texts, metadatas = load_documents(str(SERVICE_ROOT / "data"), max_contracts=50)
+
+            print("Creating embeddings...")
+            embedder = get_embedder()
+            vector_db_temp = build_vectorstore(texts, metadatas, embedder)
+
+            print(f"Saving index to {INDEX_PATH}...")
+            save_vectorstore(vector_db_temp, str(INDEX_PATH))
+            print("Index built successfully!")
+        except Exception as e:
+            print(f"Warning: Could not auto-build index: {e}")
+            print("Service will work with user-uploaded documents only.")
+
     yield
     print("Shutting down ML Agent Service...")
 

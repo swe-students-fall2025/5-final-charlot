@@ -25,7 +25,7 @@ jobs:
             - name: Install backend Python packages
               working-directory: ./web-app
               run: |
-                  pip install -e .
+                  pip install -e ".[dev]"
 
             - name: Run pytest
               working-directory: ./web-app

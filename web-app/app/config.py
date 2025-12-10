@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     jwt_secret_key: str = "supersecret"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
+    ml_service_url: str = "http://localhost:8000"
 
     class ConfigDict:
         """Config file"""

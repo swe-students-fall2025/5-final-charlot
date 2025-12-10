@@ -1,6 +1,7 @@
 """Authorization routes"""
 
 from datetime import timedelta
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, status
@@ -16,7 +17,10 @@ from app.models import UserCreate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 _settings = get_settings()
-templates = Jinja2Templates(directory="templates")
+
+# Get the templates directory path
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 @router.post("/register")
