@@ -23,11 +23,11 @@ jobs:
                   python-version: 3.13
 
             - name: Install backend Python packages
-              working-directory: ./app
+              working-directory: ./web-app
               run: |
-                  pip install fastapi uvicorn pymongo pydantic pydantic-settings python-jose[cryptography] passlib[bcrypt] python-dotenv pytest httpx
+                  pip install -e .
 
             - name: Run pytest
-              working-directory: ./app
+              working-directory: ./web-app
               run: |
                   pytest --maxfail=1 --disable-warnings -q
