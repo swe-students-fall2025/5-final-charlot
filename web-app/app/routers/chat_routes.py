@@ -14,7 +14,7 @@ from app.deps import logged_in
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 templates = Jinja2Templates(directory="templates")
-CLIENT_URL = "http://localhost:5000"
+CLIENT_URL = "http://localhost:8000"
 
 
 @router.post("/{session_id}/message")
@@ -32,8 +32,8 @@ def add_message(
     add_message_to_session(session_id, "user", message)
 
     resp = requests.post(
-        url=f"{CLIENT_URL}/QUERY",
-        JSON={"query": message}
+        url=f"{CLIENT_URL}/query",
+        json={"query": message}
     )
     json = resp.json()
 
@@ -45,20 +45,24 @@ def add_message(
 
 
 @router.post("/file")
-def send_file(file: UploadFile, current_user=Depends(logged_in)):
+def send_file(request: Request, file: UploadFile, current_user=Depends(logged_in)):
     """Add a file to the chat"""
 
     if not current_user:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
-    session_id = create_session(current_user.id)
+    session_id = create_session(current_user.id, file.filename)
     add_message_to_session(session_id, "user", f"You sent a file: {file.filename}")
 
-    requests.post(
+    files = {"file": (file.filename, file.file, file.content_type)}
+    resp = requests.post(
         url=f"{CLIENT_URL}/index-document",
-        file=file,
+        files=files,
         data={"user_id": current_user.id, "session_id": session_id}
     )
+
+    if resp.status_code != status.HTTP_200_OK:
+        return templates.TemplateResponse(request, "upload.html", {"error": "Please try again"})
 
     return RedirectResponse(f"/chat/get/{str(session_id)}", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -74,5 +78,5 @@ def get_session(request: Request, session_id: str, current_user=Depends(logged_i
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
     return templates.TemplateResponse(
-        request, "chat.html", {"current_user": current_user, "data": session.model_dump()}
+        request, "chat.html", {"current_user": current_user, "data": session}
     )

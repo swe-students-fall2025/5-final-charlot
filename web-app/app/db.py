@@ -48,11 +48,11 @@ def find_user_by_id(user_id: str) -> Optional[models.User]:
     return None
 
 
-def create_session(user_id: str) -> ObjectId:
+def create_session(user_id: str, title: str) -> ObjectId:
     """Create a session"""
 
     inserted = sessions_collection.insert_one(
-        {"user_id": ObjectId(user_id), "messages": [], "date_created": datetime.now()}
+        {"user_id": ObjectId(user_id), "title": title, "messages": [], "date_created": datetime.now()}
     )
     users_collection.find_one_and_update(
         {"_id": ObjectId(user_id)}, {"$push": {"sessions": inserted.inserted_id}}

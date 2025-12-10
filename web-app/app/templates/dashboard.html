@@ -23,8 +23,11 @@
             {% for session in sessions %}
             <a href="{{ url_for('get_session', session_id=session.id) }}" class="card session-card">
                 <h3 class="card-title">
-                    {{ 'Session ' + session.id[:8] + '...' }}
+                    {{ session.title }}
                 </h3>
+                <p class="session-preview">
+                    {{ 'Session ' + session.id[:8] + '...' }}
+                </p>
                 <div class="session-meta">
                     <span>{{ session.date_created }}</span>
                     <span>→</span>

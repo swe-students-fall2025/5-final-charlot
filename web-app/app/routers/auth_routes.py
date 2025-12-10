@@ -3,7 +3,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Request, Response, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
@@ -96,8 +96,9 @@ def login_page(request: Request):
 
 
 @router.get("/logout")
-def logout(response: Response):
+def logout():
     """Log out"""
 
+    response = RedirectResponse("/")
     response.delete_cookie("access_token")
-    return RedirectResponse("/")
+    return response

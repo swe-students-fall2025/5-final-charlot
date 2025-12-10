@@ -9,7 +9,9 @@
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">
             Upload your legal documents to analyze them with our AI assistant.
         </p>
-
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
         <!-- Upload Form -->
         <div class="card">
             <form action="{{ url_for('send_file') }}" method="post" enctype="multipart/form-data">
@@ -19,7 +21,7 @@
                         onchange="updateFileName(this)" required>
                     <div class="upload-icon">📁</div>
                     <h3 id="upload-text">Click to select a file</h3>
-                    <p>Supports PDF, TXT, DOC, DOCX files up to 10MB</p>
+                    <p>Supports PDF, TXT files up to 10MB</p>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">

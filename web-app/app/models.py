@@ -24,6 +24,7 @@ class User(BaseModel):
 
 class Session(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    title: str
     user_id: PyObjectId
     messages: list
     date_created: datetime

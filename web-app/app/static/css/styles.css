@@ -583,6 +583,11 @@ h3 {
     line-height: 1.5;
 }
 
+.message-content {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
 .message-user {
     background: var(--primary);
     color: white;
@@ -590,7 +595,7 @@ h3 {
     border-bottom-right-radius: 4px;
 }
 
-.message-ai {
+.message-client {
     background: var(--bg-card);
     border: 1px solid var(--border);
     align-self: flex-start;
