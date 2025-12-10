@@ -1,20 +1,24 @@
 FROM python:3.13-slim
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir pipenv
-
 WORKDIR /service
 
-COPY Pipfile Pipfile.lock ./
+# Copy only requirements first for better caching
+COPY Pipfile ./
 
-RUN pipenv install --system --skip-lock
+# Install dependencies one by one to reduce memory peaks
+RUN pip install --no-cache-dir pipenv && \
+    pipenv install --system --skip-lock && \
+    pip cache purge
 
+# Copy application code
 COPY . .
 
 EXPOSE 8000
 
-CMD ["./run.sh"]
+CMD ["python", "-m", "api.main"]
