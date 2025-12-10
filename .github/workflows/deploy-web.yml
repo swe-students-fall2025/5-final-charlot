@@ -17,15 +17,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-
       - name: Log in to DOCR
-        env:
-          DO_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-        run: echo "$DO_TOKEN" | doctl registry login --access-token -
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: doctl
+          password: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
 
       - name: Build amd64 image
         working-directory: ./web-app
