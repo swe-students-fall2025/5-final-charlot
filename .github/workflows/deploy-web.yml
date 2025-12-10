@@ -18,7 +18,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Log in to DOCR
-        run: echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login registry.digitalocean.com -u doctl --password-stdin
+        env:
+          DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        run: echo "$DO_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
 
       - name: Build amd64 image
         working-directory: ./web-app
