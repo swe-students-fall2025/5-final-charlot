@@ -78,7 +78,7 @@
 
 <script>
     const sessionId = "{{ data.id }}";
-    const endpoint = `http://localhost:9000/chat/${sessionId}/message`;
+    const endpoint = `/chat/${sessionId}/message`;
     const container = document.querySelector("#chat-messages");
     const textarea = document.querySelector('.chat-input');
     container.scrollTop = container.scrollHeight;
