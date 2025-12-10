@@ -91,8 +91,8 @@ def get_session_info(session_id: str, user_id: str) -> Optional[models.Session]:
 def add_message_to_session(session_id: str, role: str, message: str) -> None:
     """Add a message to the chat"""
 
-    sessions_collection.update_one(
-        {"session_id": session_id},
+    sessions_collection.find_one_and_update(
+        {"_id": ObjectId(session_id)},
         {
             "$push": {
                 "messages": {
@@ -103,6 +103,7 @@ def add_message_to_session(session_id: str, role: str, message: str) -> None:
             }
         },
     )
+    print("hi")
 
 
 # def add_file_to_session(session_id: str, filename: str, path: str) -> None:

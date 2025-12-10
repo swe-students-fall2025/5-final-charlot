@@ -15,7 +15,7 @@ def add_message(
 ):
     """Add a message to the current chat"""
 
-    if not current_user or session_id in current_user.sessions:
+    if not current_user or session_id not in current_user.sessions:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
     session = get_session_info(session_id, user_id=current_user.id)
     if not session:
