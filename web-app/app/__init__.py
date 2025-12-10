@@ -1,5 +1,7 @@
 """Direct app import"""
 
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -10,14 +12,17 @@ from app.routers.chat_routes import router as chat_router
 from app.deps import logged_in
 from app.db import list_sessions_for_user
 
+# Get the directory where this file lives
+BASE_DIR = Path(__file__).resolve().parent
+
 
 def create_app():
     """Create fastAPI app instance"""
 
-    templates = Jinja2Templates(directory="templates")
+    templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
     app = FastAPI(title="Legal Chatbot Backend")
 
-    app.mount("/static", StaticFiles(directory="static"), name="static")
+    app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
     app.include_router(auth_router)
     app.include_router(chat_router)

@@ -1,5 +1,7 @@
 """Chat routes"""
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -12,10 +14,15 @@ from app.db import (
     list_sessions_for_user
 )
 from app.deps import logged_in
+from app.config import get_settings
 
 router = APIRouter(prefix="/chat", tags=["chat"])
-templates = Jinja2Templates(directory="templates")
-CLIENT_URL = "http://localhost:8000"
+_settings = get_settings()
+
+# Get the templates directory path
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+CLIENT_URL = _settings.ml_service_url
 
 
 @router.post("/{session_id}/message")
