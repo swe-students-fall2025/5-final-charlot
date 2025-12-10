@@ -1,18 +1,21 @@
 """Chat routes"""
-from fastapi import APIRouter, Depends, UploadFile, status
+
+from fastapi import APIRouter, Body, Depends, UploadFile, status
 from fastapi.responses import RedirectResponse
 
-from app.db import add_message_to_session, get_session_info, add_file_to_session
+from app.db import add_message_to_session, get_session_info
 from app.deps import logged_in
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
 @router.post("/{session_id}/message")
-def add_message(session_id: str, message: str, current_user=Depends(logged_in)):
+def add_message(
+    session_id: str, message: str = Body(..., embed=True), current_user=Depends(logged_in)
+):
     """Add a message to the current chat"""
 
-    if not current_user:
+    if not current_user or session_id in current_user.sessions:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
     session = get_session_info(session_id, user_id=current_user.id)
     if not session:
