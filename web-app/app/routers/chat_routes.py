@@ -8,7 +8,8 @@ import requests
 from app.db import (
     add_message_to_session,
     get_session_info,
-    create_session
+    create_session,
+    list_sessions_for_user
 )
 from app.deps import logged_in
 
@@ -77,6 +78,8 @@ def get_session(request: Request, session_id: str, current_user=Depends(logged_i
     if not session:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
+    sessions = list_sessions_for_user(current_user.id)
+
     return templates.TemplateResponse(
-        request, "chat.html", {"current_user": current_user, "data": session}
+        request, "chat.html", {"current_user": current_user, "sessions": sessions, "data": session}
     )

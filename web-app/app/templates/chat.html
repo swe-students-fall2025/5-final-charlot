@@ -28,12 +28,11 @@
         </div>
         <div class="session-list">
             {% for session in sessions %}
-            <a href="{{ url_for('get_session', session_id=session.session_id) }}"
-                class="session-item {% if session.session_id == data.session_id %}active{% endif %}">
+            <a href="{{ url_for('get_session', session_id=session.id) }}">
                 <div class="session-item-title">
                     {{ session.title }}
                 </div>
-                <div class="session-item-date">{{ session.date or 'Today' }}</div>
+                <div class="session-item-date">{{ session.date_created.strftime("%Y-%m-%d") }}</div>
             </a>
             {% else %}
             <div style="padding: 1rem; color: var(--text-muted); text-align: center; font-size: 0.9rem;">
