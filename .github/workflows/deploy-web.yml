@@ -1,16 +1,13 @@
 name: Deploy Web App
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
+    paths:
+      - "web-app/**"
+  workflow_dispatch:
 
 jobs:
   deploy-web:
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
-
     runs-on: ubuntu-latest
 
     steps:
