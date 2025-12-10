@@ -8,12 +8,13 @@ Utility modules for the Legal Assistant.
 
 from .embeddings import get_embedder
 from .vectorstore import build_vectorstore, save_vectorstore, load_vectorstore
-from .cuad_loader import load_documents
+from .data_loader import load_documents, chunk_text
 
 __all__ = [
     "get_embedder",
     "build_vectorstore",
     "save_vectorstore",
     "load_vectorstore",
-    "load_documents"
+    "load_documents",
+    "chunk_text"
 ]

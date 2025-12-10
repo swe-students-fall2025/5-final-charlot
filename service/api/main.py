@@ -13,8 +13,13 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
 from agents import build_graph, run_query
-from utils import get_embedder, load_vectorstore, save_vectorstore, build_vectorstore
-from utils.cuad_loader import chunk_text
+from utils import (
+    get_embedder,
+    load_vectorstore,
+    save_vectorstore,
+    build_vectorstore,
+    chunk_text
+)
 
 # os.environ["TOKENIZERS_PARALLELISM"] = "false"
 load_dotenv()
