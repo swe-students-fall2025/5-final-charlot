@@ -4,10 +4,10 @@ on:
     push:
         branches: ["main"]
         paths:
-            - "backend/**"
+            - "app/**"
     pull_request:
         paths:
-            - "backend/**"
+            - "app/**"
 
 jobs:
     test-backend:
@@ -32,11 +32,11 @@ jobs:
                       ${{ runner.os }}-backend-pip-
 
             - name: Install backend Python packages
-              working-directory: ./backend
+              working-directory: ./app
               run: |
                   pip install -r requirements.txt
 
             - name: Run pytest
-              working-directory: ./backend
+              working-directory: ./app
               run: |
                   pytest --maxfail=1 --disable-warnings -q
