@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Legal Assistant{% endblock %}
+
+{% block head %}
+<style>
+    /* Override body to prevent scrolling issues */
+    body {
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="chat-layout">
+  
+    <aside class="chat-sidebar">
+        <div class="sidebar-header">
+            <form action="{{ url_for('create_session') }}" method="post" style="width: 100%;">
+                <input type="hidden" name="redirect_to_chat" value="true">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Chat
+                </button>
+            </form>
+        </div>
+        <div class="session-list">
+            {% for session in sessions %}
+                <a href="{{ url_for('chat_page') }}?session_id={{ session.session_id }}" 
+                   class="session-item {% if session.session_id == current_session_id %}active{% endif %}">
+                    <div class="session-item-title">
+                        {{ session.title or 'Session ' + session.session_id[:8] + '...' }}
+                    </div>
+                    <div class="session-item-date">{{ session.date or 'Today' }}</div>
+                </a>
+            {% else %}
+                <div style="padding: 1rem; color: var(--text-muted); text-align: center; font-size: 0.9rem;">
+                    No sessions yet
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="chat-main">
+        <div class="chat-header">
+            <span class="chat-title">Legal Assistant</span>
+            <a href="{{ url_for('upload_page') }}{% if current_session_id %}?session_id={{ current_session_id }}{% endif %}" class="btn btn-secondary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Upload Document
+            </a>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="chat-messages">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="message message-{{ 'user' if msg.role == 'user' else 'ai' }}">
+                        <div class="message-content">{{ msg.message }}</div>
+                        <div class="message-time">{{ msg.timestamp }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Welcome message -->
+                <div class="message message-ai">
+                    <div class="message-content">
+                        Hello! I'm your AI legal assistant. I can help you understand legal documents, 
+                        explain contract terms, and answer questions about legal concepts.
+                        <br><br>
+                        You can upload documents using the button above, or just ask me a question about:
+                        <br>• Termination conditions
+                        <br>• Indemnification clauses
+                        <br>• Non-compete restrictions
+                        <br>• And more!
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <form action="{{ url_for('send_message') }}" method="post" class="chat-input-wrapper">
+                <input type="hidden" name="session_id" value="{{ current_session_id }}">
+                <textarea 
+                    name="message"
+                    class="chat-input" 
+                    placeholder="Ask about your legal documents..."
+                    rows="1"
+                    required
+                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.submit(); }"
+                ></textarea>
+                <button type="submit" class="send-btn" title="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22,2 15,22 11,13 2,9"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Auto-scroll to bottom of messages
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Auto-resize textarea
+    const textarea = document.querySelector('.chat-input');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+    });
+</script>
+{% endblock %}
