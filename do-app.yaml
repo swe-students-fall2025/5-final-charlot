@@ -1,17 +1,15 @@
 name: charlot-ml-app
-region: nyc
-
 services:
   - name: backend
-    dockerfile_path: ./web-app/Dockerfile
-    http_port: 9000
-    instance_size_slug: basic-xxs
-    instance_count: 1
+    git:
+      repo_clone_url: https://github.com/<your-org>/<your-repo>.git
+      branch: main
+    dockerfile_path: web-app/Dockerfile
+    instance_size_slug: basic-s
+    run_command: python main.py
 
-  - name: ml-client
-    source_dir: service
-    dockerfile_path: service/Dockerfile
-    http_port: 8000
+  - name: ml-service
+    image: registry.digitalocean.com/charlot-project/ml-service:latest
     instance_size_slug: professional-s
     instance_count: 1
-    environment_slug: docker
+    run_command: ./run.sh
