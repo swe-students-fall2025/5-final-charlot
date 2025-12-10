@@ -1,6 +1,6 @@
 """Session tests"""
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 def test_dashboard_unauthorized(test_client):
@@ -18,7 +18,11 @@ def test_chat(test_client, mock_logged_in):
 
     with patch("app.routers.chat_routes.add_message_to_session"), patch(
         "app.routers.chat_routes.get_session_info"
-    ):
+    ), patch("app.routers.chat_routes.requests.post") as mock_post:
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"final_explanation": "Hello from mock"}
+        mock_post.return_value = mock_response
         resp = test_client.post(
             "/chat/session_id/message", data={"message": "Hello"}, follow_redirects=False
         )
