@@ -144,7 +144,7 @@ def chunk_text(text: str, chunk_size: int = 2000, overlap: int = 200) -> List[st
 
 def load_documents(
     data_dir: str,
-    max_contracts: int = 50,
+    max_contracts: int = 20,
     chunk_size: int = 2000
 ) -> Tuple[List[str], List[Dict]]:
     """

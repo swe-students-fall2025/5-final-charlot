@@ -24,7 +24,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 INDEX_PATH = DATA_DIR / "embeddings" / "faiss_index"
 
 
-def build_index(max_contracts: int = 50):
+def build_index(max_contracts: int = 20):
     """Build vector index from CUAD dataset."""
     from utils import get_embedder, build_vectorstore, save_vectorstore, load_documents
 
@@ -135,7 +135,7 @@ def main():
     command = sys.argv[1].lower()
 
     if command == "build":
-        max_contracts = int(sys.argv[2]) if len(sys.argv) > 2 else 50
+        max_contracts = int(sys.argv[2]) if len(sys.argv) > 2 else 20
         build_index(max_contracts)
     elif command == "run":
         run_agent()

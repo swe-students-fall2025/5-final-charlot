@@ -82,7 +82,7 @@ async def lifespan(app: FastAPI):
 
             # Build with a reasonable number of contracts
             print("Loading documents...")
-            texts, metadatas = load_documents(str(SERVICE_ROOT / "data"), max_contracts=50)
+            texts, metadatas = load_documents(str(SERVICE_ROOT / "data"), max_contracts=20)
 
             print("Creating embeddings...")
             embedder = get_embedder()
