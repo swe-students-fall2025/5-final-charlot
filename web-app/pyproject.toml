@@ -8,6 +8,7 @@ description = "A flask web app"
 version = "0.1.0"
 authors = [
   { name="Samuel Yang", email="sy3638@nyu.edu" }
+  { name="Hyunkyu Park", email="hp2420@nyu.edu" }
 ]
 readme = "README.md"
 requires-python = ">=3.13"
