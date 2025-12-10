@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Documents - Legal Assistant{% endblock %}
+
+{% block content %}
+<main style="padding: 2rem 0;">
+    <div class="container" style="max-width: 700px;">
+        <h1 style="margin-bottom: 0.5rem;">Upload Documents</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Upload your legal documents to analyze them with our AI assistant.
+        </p>
+
+        <!-- Upload Form -->
+        <div class="card">
+            <form action="{{ url_for('send_file') }}" method="post" enctype="multipart/form-data">
+
+                <div class="upload-area" onclick="document.getElementById('file-input').click();">
+                    <input type="file" id="file-input" name="file" accept=".pdf,.txt,.doc,.docx" style="display: none;"
+                        onchange="updateFileName(this)" required>
+                    <div class="upload-icon">📁</div>
+                    <h3 id="upload-text">Click to select a file</h3>
+                    <p>Supports PDF, TXT, DOC, DOCX files up to 10MB</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                    Upload Document
+                </button>
+            </form>
+        </div>
+
+        <!-- Tips -->
+        <div class="card" style="margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">Tips for best results</h3>
+            <ul style="color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.8;">
+                <li>Upload clear, readable documents</li>
+                <li>PDFs with selectable text work best</li>
+                <li>You can upload multiple documents across sessions</li>
+                <li>Documents are processed securely and privately</li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">View All Sessions</a>
+        </div>
+    </div>
+</main>
+
+<script>
+    function updateFileName(input) {
+        const uploadText = document.getElementById('upload-text');
+        if (input.files && input.files[0]) {
+            uploadText.textContent = input.files[0].name;
+        } else {
+            uploadText.textContent = 'Click to select a file';
+        }
+    }
+
+    // Drag and drop support
+    const uploadArea = document.querySelector('.upload-area');
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const fileInput = document.getElementById('file-input');
+        fileInput.files = e.dataTransfer.files;
+        updateFileName(fileInput);
+    });
+</script>
+{% endblock %}
