@@ -1,0 +1,28 @@
+name: Deploy Web App
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  deploy-web:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to DOCR
+        run: echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login registry.digitalocean.com -u doctl --password-stdin
+
+      - name: Build amd64 image
+        working-directory: ./web-app
+        run: docker buildx build --platform linux/amd64 -t registry.digitalocean.com/charlot-project/web-app:latest .
+
+      - name: Push image
+        run: docker push registry.digitalocean.com/charlot-project/web-app:latest
