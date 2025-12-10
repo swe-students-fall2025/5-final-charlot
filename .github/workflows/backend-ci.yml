@@ -32,11 +32,11 @@ jobs:
                       ${{ runner.os }}-backend-pip-
 
             - name: Install backend Python packages
-              working-directory: ./app
+              working-directory: ./web-app
               run: |
-                  pip install -r requirements.txt
+                  pip install -e .
 
             - name: Run pytest
-              working-directory: ./app
+              working-directory: ./web-app
               run: |
                   pytest --maxfail=1 --disable-warnings -q

@@ -12,6 +12,8 @@ bcrypt = "*"
 pymongo = "*"
 python-dotenv = "*"
 httpx = "*"
+jinja2 = "*"
+python-multipart = "*"
 
 [dev-packages]
 pylint = "*"

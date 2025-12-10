@@ -20,7 +20,9 @@ dependencies = [
   "pymongo",
   "pydantic-settings",
   "python-dotenv",
-  "httpx"
+  "httpx",
+  "jinja2",
+  "python-multipart"
 ]
 
 [project.optional-dependencies]
