@@ -10,10 +10,12 @@ pydantic = "*"
 python-jose = "*"
 bcrypt = "*"
 pymongo = "*"
+pydantic-settings = "*"
 python-dotenv = "*"
 httpx = "*"
 jinja2 = "*"
 python-multipart = "*"
+requests = "*"
 
 [dev-packages]
 pylint = "*"
