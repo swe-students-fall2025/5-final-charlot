@@ -1,5 +1,7 @@
 """Models used throughout the code"""
 
+# pylint: disable=C0115
+
 from typing import Annotated, Optional
 
 from pydantic import BaseModel, BeforeValidator, Field

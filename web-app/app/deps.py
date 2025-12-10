@@ -1,9 +1,11 @@
+"""FastAPI Dependencies"""
+
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
-from app import models as models
+from app import models
 from app.auth import decode_access_token
 from app.db import find_user_by_id
 
@@ -20,11 +22,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             )
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
-        )
+        ) from e
 
     user = find_user_by_id(user_id)
     if not user:

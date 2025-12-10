@@ -1,3 +1,5 @@
+"""Direct app import"""
+
 from fastapi import FastAPI
 
 from app.routers.auth_routes import router as auth_router
@@ -8,6 +10,8 @@ from app.routers.auth_routes import router as auth_router
 
 
 def create_app():
+    """Create fastAPI app instance"""
+
     app = FastAPI(title="Legal Chatbot Backend")
 
     app.include_router(auth_router)

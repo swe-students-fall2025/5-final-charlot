@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import bcrypt
 from jose import jwt
 
-import app.models as models
+from app import models
 from app.config import get_settings
 from app.db import find_user_by_username
 
