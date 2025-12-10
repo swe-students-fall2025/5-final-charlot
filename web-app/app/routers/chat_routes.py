@@ -35,7 +35,7 @@ def add_message(
 def add_file(session_id: str, file: UploadFile, current_user=Depends(logged_in)):
     """Add a file to the chat"""
 
-    if not current_user:
+    if not current_user or session_id not in current_user.sessions:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
     session = get_session_info(session_id, user_id=current_user.id)
     if not session:

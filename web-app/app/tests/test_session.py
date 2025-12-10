@@ -35,26 +35,14 @@ def test_dashboard_unauthorized(test_client):
         mock_list_sessions.assert_not_called()
 
 
-# def test_chat_in_session(auth_header):
-#     """Test sending a chat message in a session"""
-#     # Create session
-#     resp = client.post("/sessions/", headers=auth_header)
-#     session_id = resp.json()["session_id"]
+def test_chat(test_client, mock_logged_in):
+    """Test adding message to a chat"""
 
-#     # Send chat message
-#     chat_resp = client.post(
-#         "/chat/",
-#         json={"session_id": session_id, "message": "Hello, I have a legal question"},
-#         headers=auth_header,
-#     )
-#     assert chat_resp.status_code == 200
-#     chat_data = chat_resp.json()
-#     assert chat_data["session_id"] == session_id
-#     assert len(chat_data["messages"]) >= 2  # user message + ai response
-#     assert chat_data["messages"][0]["role"] == "user"
-#     assert chat_data["messages"][0]["message"] == "Hello, I have a legal question"
-#     assert chat_data["messages"][1]["role"] == "ai"
-#     assert "You said:" in chat_data["messages"][1]["message"]
+    with patch("app.routers.chat_routes.add_message_to_session"), patch("app.routers.chat_routes.get_session_info"):
+        resp = test_client.post(
+            "/chat/session_id/message", json={"message": "Hello"}, follow_redirects=False
+        )
+        assert resp.status_code == 200
 
 
 def test_chat_msg_unauthorized(test_client):
@@ -77,6 +65,18 @@ def test_chat_without_session(test_client):
     ):
         resp = test_client.post(
             "/chat/session_id/message", json={"message": "Hello"}, follow_redirects=False
+        )
+        assert resp.status_code == 302
+        resp.headers["location"] == "/"
+        mock_add_message.assert_not_called()
+
+
+def test_chat_unknown_session(test_client, mock_logged_in):
+    """Test trying to chat in a session that isn't yours"""
+
+    with patch("app.routers.chat_routes.add_message_to_session") as mock_add_message:
+        resp = test_client.post(
+            "/chat/unknown_session/message", json={"message": "Hello"}, follow_redirects=False
         )
         assert resp.status_code == 302
         resp.headers["location"] == "/"
