@@ -1,14 +1,20 @@
 import os
+import io
+import docx
+import uvicorn
+
 from pathlib import Path
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from PyPDF2 import PdfReader
 
 from agents import build_graph, run_query
-from utils import get_embedder, load_vectorstore
+from utils import get_embedder, load_vectorstore, save_vectorstore, build_vectorstore
+from utils.cuad_loader import chunk_text
 
 # os.environ["TOKENIZERS_PARALLELISM"] = "false"
 load_dotenv()
@@ -120,7 +126,128 @@ def query_agent(request: QueryRequest):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
+@app.post("/index-document")
+async def index_document(
+    file: UploadFile = File(...),
+    user_id: str = Form(...),
+    session_id: str = Form(None)
+):
+    """
+    Upload and index a document for a specific user.
+
+    Supported file types: .pdf, .txt, .md, .doc, .docx
+    """
+    try:
+        # Read file
+        file_bytes = await file.read()
+        filename = file.filename.lower()
+
+        # Extract text based on file type
+        if filename.endswith('.pdf'):
+            # PDF extraction
+            pdf_file = io.BytesIO(file_bytes)
+            reader = PdfReader(pdf_file)
+
+            text_parts = []
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
+
+            if not text_parts:
+                raise HTTPException(status_code=400, detail="No text could be extracted from PDF")
+
+            full_text = "\n\n".join(text_parts)
+
+        elif filename.endswith('.txt') or filename.endswith('.md'):
+            # Plain text or Markdown
+            try:
+                full_text = file_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                # Try with different encoding
+                full_text = file_bytes.decode('latin-1')
+
+        elif filename.endswith('.doc') or filename.endswith('.docx'):
+            # Word documents (requires python-docx)
+            try:
+                doc_file = io.BytesIO(file_bytes)
+                doc = docx.Document(doc_file)
+                full_text = "\n\n".join([para.text for para in doc.paragraphs if para.text.strip()])
+            except ImportError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Word document support not available. Please convert to PDF or TXT."
+                )
+
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported file type. Supported: .pdf, .txt, .md, .doc, .docx"
+            )
+
+        if not full_text or not full_text.strip():
+            raise HTTPException(status_code=400, detail="No text could be extracted from file")
+
+        # Chunk the text
+        chunks = chunk_text(full_text, chunk_size=1500, overlap=200)
+
+        # Create metadata for each chunk
+        metadatas = [
+            {
+                "source": file.filename,
+                "user_id": user_id,
+                "session_id": session_id or "",
+                "chunk_index": i,
+                "total_chunks": len(chunks),
+                "type": "user_upload"
+            }
+            for i in range(len(chunks))
+        ]
+
+        # Get embedder
+        embedder = get_embedder()
+
+        # User-specific vector store path
+        user_index_dir = SERVICE_ROOT / "data" / "embeddings" / "users"
+        user_index_dir.mkdir(parents=True, exist_ok=True)
+        user_index_path = user_index_dir / f"user_{user_id}_faiss"
+
+        # Load or create vector store
+        if user_index_path.exists():
+            # Add to existing user index
+            vector_db = load_vectorstore(str(user_index_path), embedder)
+            vector_db.add_texts(texts=chunks, metadatas=metadatas)
+        else:
+            # Create new index - start with CUAD if available
+            if INDEX_PATH.exists():
+                # Copy CUAD index and add user documents
+                vector_db = load_vectorstore(str(INDEX_PATH), embedder)
+                vector_db.add_texts(texts=chunks, metadatas=metadatas)
+            else:
+                # Create completely new index
+                vector_db = build_vectorstore(
+                    texts=chunks,
+                    metadatas=metadatas,
+                    embedder=embedder
+                )
+
+        # Save updated index
+        save_vectorstore(vector_db, str(user_index_path))
+
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "user_id": user_id,
+            "chunks_created": len(chunks),
+            "index_path": str(user_index_path)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
+
+
 if __name__ == "__main__":
-    import uvicorn
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)

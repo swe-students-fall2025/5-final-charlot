@@ -19,6 +19,9 @@ pandas = "*"
 python-dotenv = "*"
 fastapi = "*"
 uvicorn = "*"
+pypdf2 = "*"
+python-multipart = "*"
+python-docx = "*"
 
 [dev-packages]
 
