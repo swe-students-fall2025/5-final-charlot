@@ -9,33 +9,19 @@
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">
             Upload your legal documents to analyze them with our AI assistant.
         </p>
-
-        <!-- Success/Error Messages -->
-        {% if success %}
-            <div class="alert alert-success">{{ success }}</div>
-        {% endif %}
         {% if error %}
-            <div class="alert alert-error">{{ error }}</div>
+        <div class="alert alert-error">{{ error }}</div>
         {% endif %}
-
         <!-- Upload Form -->
         <div class="card">
-            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="session_id" value="{{ session_id }}">
-                
+            <form action="{{ url_for('send_file') }}" method="post" enctype="multipart/form-data">
+
                 <div class="upload-area" onclick="document.getElementById('file-input').click();">
-                    <input 
-                        type="file" 
-                        id="file-input"
-                        name="file"
-                        accept=".pdf,.txt,.doc,.docx"
-                        style="display: none;"
-                        onchange="updateFileName(this)"
-                        required
-                    >
+                    <input type="file" id="file-input" name="file" accept=".pdf,.txt" style="display: none;"
+                        onchange="updateFileName(this)" required>
                     <div class="upload-icon">📁</div>
                     <h3 id="upload-text">Click to select a file</h3>
-                    <p>Supports PDF, TXT, DOC, DOCX files up to 10MB</p>
+                    <p>Supports PDF, TXT files up to 10MB</p>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
@@ -43,19 +29,6 @@
                 </button>
             </form>
         </div>
-
-        <!-- Uploaded Files List -->
-        {% if uploaded_files %}
-            <div class="card" style="margin-top: 1.5rem;">
-                <h3 style="margin-bottom: 1rem;">Uploaded Documents</h3>
-                {% for file in uploaded_files %}
-                    <div class="file-item">
-                        <span class="file-item-name">📄 {{ file.filename }}</span>
-                        <span class="file-item-size">{{ file.size or '' }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
 
         <!-- Tips -->
         <div class="card" style="margin-top: 1.5rem;">
@@ -70,13 +43,6 @@
 
         <!-- Action Buttons -->
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <a href="{{ url_for('chat_page') }}{% if session_id %}?session_id={{ session_id }}{% endif %}" class="btn btn-primary">
-                Go to Chat
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                    <polyline points="12,5 19,12 12,19"/>
-                </svg>
-            </a>
             <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">View All Sessions</a>
         </div>
     </div>
@@ -91,19 +57,19 @@
             uploadText.textContent = 'Click to select a file';
         }
     }
-    
+
     // Drag and drop support
     const uploadArea = document.querySelector('.upload-area');
-    
+
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.classList.add('dragover');
     });
-    
+
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.classList.remove('dragover');
     });
-    
+
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('dragover');

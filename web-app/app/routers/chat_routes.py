@@ -1,17 +1,26 @@
 """Chat routes"""
 
-from fastapi import APIRouter, Body, Depends, UploadFile, status
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
+from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+import requests
 
-from app.db import add_message_to_session, get_session_info
+from app.db import (
+    add_message_to_session,
+    get_session_info,
+    create_session,
+    list_sessions_for_user
+)
 from app.deps import logged_in
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+templates = Jinja2Templates(directory="templates")
+CLIENT_URL = "http://localhost:8000"
 
 
 @router.post("/{session_id}/message")
 def add_message(
-    session_id: str, message: str = Body(..., embed=True), current_user=Depends(logged_in)
+    session_id: str, message: str = Form(...), current_user=Depends(logged_in)
 ):
     """Add a message to the current chat"""
 
@@ -23,17 +32,45 @@ def add_message(
 
     add_message_to_session(session_id, "user", message)
 
-    # TODO: call Hyu's ML client here later.
-    ai_text = f"(Dummy response) You said: {message}"
+    resp = requests.post(
+        url=f"{CLIENT_URL}/query",
+        json={"query": message}
+    )
+    json = resp.json()
 
-    add_message_to_session(session_id, "client", ai_text)
+    response = json["final_explanation"]
 
-    return status.HTTP_200_OK
+    add_message_to_session(session_id, "client", response)
+
+    return JSONResponse({"response": response})
 
 
-@router.post("/{session_id}/file")
-def add_file(session_id: str, file: UploadFile, current_user=Depends(logged_in)):
+@router.post("/file")
+def send_file(request: Request, file: UploadFile, current_user=Depends(logged_in)):
     """Add a file to the chat"""
+
+    if not current_user:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    session_id = create_session(current_user.id, file.filename)
+    add_message_to_session(session_id, "user", f"You sent a file: {file.filename}")
+
+    files = {"file": (file.filename, file.file, file.content_type)}
+    resp = requests.post(
+        url=f"{CLIENT_URL}/index-document",
+        files=files,
+        data={"user_id": current_user.id, "session_id": session_id}
+    )
+
+    if resp.status_code != status.HTTP_200_OK:
+        return templates.TemplateResponse(request, "upload.html", {"error": "Please try again"})
+
+    return RedirectResponse(f"/chat/get/{str(session_id)}", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/get/{session_id}")
+def get_session(request: Request, session_id: str, current_user=Depends(logged_in)):
+    """Render page for a chat"""
 
     if not current_user or session_id not in current_user.sessions:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
@@ -41,7 +78,8 @@ def add_file(session_id: str, file: UploadFile, current_user=Depends(logged_in))
     if not session:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
-    # add_file_to_session(session_id, file.filename, filepath)
-    # return {"session_id": session_id, "filename": file.filename, "path": filepath}
+    sessions = list_sessions_for_user(current_user.id)
 
-    return status.HTTP_200_OK
+    return templates.TemplateResponse(
+        request, "chat.html", {"current_user": current_user, "sessions": sessions, "data": session}
+    )

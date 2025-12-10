@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Legal Assistant{% endblock %}
+
+{% block head %}
+<style>
+    /* Override body to prevent scrolling issues */
+    body {
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Chat Layout -->
+<div class="chat-layout">
+    <!-- Sidebar -->
+    <aside class="chat-sidebar">
+        <div class="sidebar-header">
+            <form action="{{ url_for('upload_page') }}" method="get" style="width: 100%;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    New Chat
+                </button>
+            </form>
+        </div>
+        <div class="session-list">
+            {% for session in sessions %}
+            <a href="{{ url_for('get_session', session_id=session.id) }}">
+                <div class="session-item-title">
+                    {{ session.title }}
+                </div>
+                <div class="session-item-date">{{ session.date_created.strftime("%Y-%m-%d") }}</div>
+            </a>
+            {% else %}
+            <div style="padding: 1rem; color: var(--text-muted); text-align: center; font-size: 0.9rem;">
+                No sessions yet
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="chat-main">
+        <div class="chat-header">
+            <span class="chat-title">Legal Assistant</span>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="chat-messages">
+            {% for msg in data.messages %}
+            <div class="message message-{{ 'user' if msg.role == 'user' else 'client' }}">
+                <div class="message-content">{{ msg.message }}</div>
+                <div class="message-time">{{ msg.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <textarea id="chat-input" class="chat-input" placeholder="Ask about your legal documents..." rows="1"
+                    required onkeydown="handleEnter(event)"></textarea>
+
+                <button id="send-btn" class="send-btn" title="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22,2 15,22 11,13 2,9" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    const sessionId = "{{ data.id }}";
+    const endpoint = `http://localhost:9000/chat/${sessionId}/message`;
+    const container = document.querySelector("#chat-messages");
+    const textarea = document.querySelector('.chat-input');
+    container.scrollTop = container.scrollHeight;
+
+    const handleEnter = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+    document.getElementById("send-btn").addEventListener("click", sendMessage);
+
+    async function sendMessage() {
+        const message = textarea.value.trim();
+        if (!message) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append("message", message);
+        appendMessage("user", message, Date.now());
+        textarea.value = "";
+        const res = await fetch(endpoint, {
+            method: "POST",
+            body: formData
+        })
+        if (res.ok) {
+            const json = await res.json()
+            console.log(json)
+            appendMessage("client", json["response"], Date.now())
+        }
+    }
+
+    function appendMessage(role, message, timestamp) {
+        const dateObj = new Date(timestamp);
+        const formattedDate =
+            dateObj.getFullYear() + "-" +
+            String(dateObj.getMonth() + 1).padStart(2, "0") + "-" +
+            String(dateObj.getDate()).padStart(2, "0") + " " +
+            String(dateObj.getHours()).padStart(2, "0") + ":" +
+            String(dateObj.getMinutes()).padStart(2, "0");
+
+        const wrapper = document.createElement("div");
+        wrapper.className = `message message-${role}`;
+
+        const content = document.createElement("div");
+        content.className = "message-content";
+        content.innerHTML = message;
+
+        const time = document.createElement("div");
+        time.className = "message-time";
+        time.innerHTML = formattedDate;
+
+        wrapper.appendChild(content);
+        wrapper.appendChild(time);
+
+        container.appendChild(wrapper);
+        container.scrollTop = container.scrollHeight;
+    }
+</script>
+{% endblock %}

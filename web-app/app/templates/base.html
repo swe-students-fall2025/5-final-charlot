@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Legal Assistant{% endblock %}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/static/css/styles.css">
+        {% block head %}{% endblock %}
+    </head>
+
+    <body>
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="container">
+                <a href="{{ url_for('root') }}" class="logo">
+                    <div class="logo-icon">⚖️</div>
+                    <span>Legal Assistant</span>
+                </a>
+                <ul class="nav-links">
+                    {% if current_user %}
+                    <li>
+                        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('root') }}">Chat</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('root') }}">Upload</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('logout')}}">Sign out</a>
+                    </li>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href=" {{ url_for('login_page') }}">Sign In</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('register_page') }}" class="btn btn-primary">Get Started</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Flash Messages -->
+
+        <!-- Main Content -->
+        {% block content %}{% endblock %}
+
+        <!-- Footer -->
+        {% block footer %}{% endblock %}
+    </body>
+
+</html>

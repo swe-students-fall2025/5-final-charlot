@@ -8,16 +8,16 @@
     <div class="container">
         <h1>Your AI-Powered Legal Assistant</h1>
         <p>
-            Navigate complex legal documents with ease. Our intelligent agent analyzes contracts, 
+            Navigate complex legal documents with ease. Our intelligent agent analyzes contracts,
             explains clauses, and answers your questions in plain language.
         </p>
         <div class="hero-buttons">
             {% if current_user %}
-                <a href="{{ url_for('chat_page') }}" class="btn btn-primary btn-lg">Start Chatting</a>
-                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">View Dashboard</a>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-primary btn-lg">Start Chatting</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">View Dashboard</a>
             {% else %}
-                <a href="{{ url_for('register_page') }}" class="btn btn-primary btn-lg">Start Free</a>
-                <a href="{{ url_for('login_page') }}" class="btn btn-secondary btn-lg">Sign In</a>
+            <a href="{{ url_for('register_page') }}" class="btn btn-primary btn-lg">Start Free</a>
+            <a href="{{ url_for('login_page') }}" class="btn btn-secondary btn-lg">Sign In</a>
             {% endif %}
         </div>
 
@@ -26,7 +26,8 @@
             <div class="feature-card">
                 <div class="feature-icon">📄</div>
                 <h3>Document Analysis</h3>
-                <p>Upload contracts and legal documents. Our AI extracts key information and identifies important clauses.</p>
+                <p>Upload contracts and legal documents. Our AI extracts key information and identifies important
+                    clauses.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">💬</div>
@@ -51,7 +52,8 @@
 <section style="padding: 4rem 0; background: var(--bg-card);">
     <div class="container">
         <h2 style="text-align: center; margin-bottom: 3rem;">How It Works</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center;">
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center;">
             <div>
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">1️⃣</div>
                 <h3 style="margin-bottom: 0.5rem;">Upload</h3>
@@ -75,7 +77,8 @@
 <section style="padding: 4rem 0; text-align: center;">
     <div class="container">
         <h2 style="margin-bottom: 1rem;">Ready to simplify legal documents?</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Join thousands of users who trust our AI legal assistant.</p>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Join thousands of users who trust our AI legal
+            assistant.</p>
         <a href="{{ url_for('register_page') }}" class="btn btn-primary btn-lg">Get Started Free</a>
     </div>
 </section>

@@ -82,14 +82,23 @@ def login(
 
 
 @router.get("/register")
-def register_page():
+def register_page(request: Request):
     """Registration page"""
 
-    return "REGISTER PAGE"
+    return templates.TemplateResponse(request, "register.html")
 
 
 @router.get("/login")
-def login_page():
+def login_page(request: Request):
     """Login page"""
 
-    return "LOGIN PAGE"
+    return templates.TemplateResponse(request, "login.html")
+
+
+@router.get("/logout")
+def logout():
+    """Log out"""
+
+    response = RedirectResponse("/")
+    response.delete_cookie("access_token")
+    return response

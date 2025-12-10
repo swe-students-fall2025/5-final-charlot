@@ -61,7 +61,9 @@ def mock_user():
 def mock_logged_in():
     """Mock get_current_user succeeds"""
 
-    fake_user = models.User(id="id", username="username", password_hash="password", sessions=["session_id"])
+    fake_user = models.User(
+        id="id", username="username", password_hash="password", sessions=["session_id"]
+    )
     with patch("app.deps.get_current_user", return_value=fake_user) as mock_logged_in:
         yield mock_logged_in
 
