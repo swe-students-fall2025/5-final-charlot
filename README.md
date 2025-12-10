@@ -163,5 +163,4 @@ docker-compose build service
 
 ## Notes / TODO for course admins
 
-- Replace `REPO_OWNER/REPO_NAME` in the badges above with the actual GitHub org/repo.
 - Ensure secrets for deploy workflows are set in GitHub Actions (e.g., Docker Hub, DigitalOcean, OpenAI API key).
