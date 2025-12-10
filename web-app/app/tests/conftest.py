@@ -1,12 +1,12 @@
 """Mocks client, db, and user"""
 
-from bson import ObjectId
-from fastapi import HTTPException, status
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
-import app.models as models
 
+import pytest
+from bson import ObjectId
+from fastapi.testclient import TestClient
+
+import app.models as models
 from app import create_app
 
 
@@ -37,7 +37,7 @@ def mock_settings():
 def side_effect_user(query: dict):
     """Mock finding a user"""
 
-    if query["username"] == "taken_username":
+    if query.get("username") == "taken_username":
         return {
             "_id": ObjectId(),
             "username": query["username"],
@@ -58,31 +58,11 @@ def mock_user():
 
 
 @pytest.fixture
-def mock_oauth2_scheme():
-    """Mock OAuth2 token to simulate a logged-in user"""
-
-    fake_token = "fake_access_token"
-    with patch("app.deps.oauth2_scheme", return_value=fake_token):
-        yield fake_token
-
-
-@pytest.fixture
 def mock_logged_in():
     """Mock get_current_user succeeds"""
 
-    fake_user = models.User(id="id", username="username", password_hash="password", sessions=[])
+    fake_user = models.User(id="id", username="username", password_hash="password", sessions=["session_id"])
     with patch("app.deps.get_current_user", return_value=fake_user) as mock_logged_in:
-        yield mock_logged_in
-
-
-@pytest.fixture
-def mock_logged_out():
-    """Mock get_current_user fails"""
-
-    with patch(
-        "app.deps.get_current_user",
-        side_effect=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    ) as mock_logged_in:
         yield mock_logged_in
 
 
@@ -99,5 +79,15 @@ def side_effect_auth(username: str, password: str):
 def mock_authenticate():
     """Mock authenticating login"""
 
-    with patch("app.routers.auth_routes.authenticate_user", side_effect=side_effect_auth) as authenticate_mock:
+    with patch(
+        "app.routers.auth_routes.authenticate_user", side_effect=side_effect_auth
+    ) as authenticate_mock:
         yield authenticate_mock
+
+
+@pytest.fixture
+def mock_access_token():
+    """Mock function to create token"""
+
+    with patch("app.auth.create_access_token") as mock_access_token:
+        yield mock_access_token

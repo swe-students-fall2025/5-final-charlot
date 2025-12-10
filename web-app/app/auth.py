@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import bcrypt
 from jose import jwt
 
-import app.models as models
+from app import models
 from app.config import get_settings
 from app.db import find_user_by_username
 
@@ -38,7 +38,7 @@ def create_access_token(data: dict, expires_delta: timedelta) -> str:
 
     to_encode = data.copy()
     expire = datetime.now() + expires_delta
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": int(expire.timestamp())})
     encoded_jwt = jwt.encode(
         to_encode,
         _settings.jwt_secret_key,
