@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from agents import build_graph, run_query
-from utils import get_embedder, load_vectorstore
+from service.agents import build_graph, run_query
+from service.utils import get_embedder, load_vectorstore
 
 # os.environ["TOKENIZERS_PARALLELISM"] = "false"
 load_dotenv()
