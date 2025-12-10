@@ -1,8 +1,12 @@
 from datetime import datetime
+from typing import Optional
 
+from bson import ObjectId
 from pymongo import MongoClient
+from pymongo.results import InsertOneResult
 
-from .config import get_settings
+import app.models as models
+from app.config import get_settings
 
 _settings = get_settings()
 
@@ -15,25 +19,33 @@ users_collection = db["users"]
 sessions_collection = db["sessions"]
 
 
-def create_user(user_id: str, email: str, password_hash: str) -> None:
-    users_collection.insert_one(
-        {
-            "user_id": user_id,
-            "email": email,
-            "password_hash": password_hash,
-        }
+def create_user(username: str, password_hash: str) -> InsertOneResult:
+    """Create a new user in the db"""
+
+    return users_collection.insert_one(
+        {"username": username, "password_hash": password_hash, "sessions": []}
     )
 
 
-def find_user_by_email(email: str):
-    return users_collection.find_one({"email": email})
+def find_user_by_username(username: str) -> Optional[models.User]:
+    """Find a user by username"""
+
+    data = users_collection.find_one({"username": username})
+    if data:
+        return models.User.model_validate(data)
+    else:
+        return None
 
 
 def find_user_by_id(user_id: str):
-    return users_collection.find_one({"user_id": user_id})
+    """Find a user by id"""
+
+    return models.User.model_validate(users_collection.find_one({"_id": ObjectId(user_id)}))
 
 
 def create_session(session_id: str, user_id: str) -> None:
+    """Create a session"""
+
     sessions_collection.insert_one(
         {
             "session_id": session_id,
