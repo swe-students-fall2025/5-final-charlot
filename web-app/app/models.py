@@ -26,19 +26,3 @@ class Session(BaseModel):
     user_id: PyObjectId
     messages: list
     files: list
-
-
-class ChatRequest(BaseModel):
-    session_id: str
-    message: str
-
-
-class Message(BaseModel):
-    role: str
-    message: str
-    timestamp: str
-
-
-class ChatResponse(BaseModel):
-    session_id: str
-    messages: list[Message]

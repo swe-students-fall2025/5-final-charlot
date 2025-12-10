@@ -1,6 +1,7 @@
 """DB operations"""
 
 # from datetime import datetime
+from datetime import datetime
 from typing import Optional
 
 from bson import ObjectId
@@ -87,19 +88,21 @@ def get_session_info(session_id: str, user_id: str) -> Optional[models.Session]:
     return None
 
 
-# def add_message_to_session(session_id: str, role: str, message: str) -> None:
-#     sessions_collection.update_one(
-#         {"session_id": session_id},
-#         {
-#             "$push": {
-#                 "messages": {
-#                     "role": role,
-#                     "message": message,
-#                     "timestamp": datetime.utcnow(),
-#                 }
-#             }
-#         },
-#     )
+def add_message_to_session(session_id: str, role: str, message: str) -> None:
+    """Add a message to the chat"""
+
+    sessions_collection.update_one(
+        {"session_id": session_id},
+        {
+            "$push": {
+                "messages": {
+                    "role": role,
+                    "message": message,
+                    "timestamp": datetime.now(),
+                }
+            }
+        },
+    )
 
 
 # def add_file_to_session(session_id: str, filename: str, path: str) -> None:

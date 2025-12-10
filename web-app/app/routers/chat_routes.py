@@ -1,35 +1,44 @@
-# from datetime import datetime
+"""Chat routes"""
+from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi.responses import RedirectResponse
 
-# from fastapi import APIRouter, Depends, HTTPException, status
+from app.db import add_message_to_session, get_session_info, add_file_to_session
+from app.deps import logged_in
 
-# from ..db import add_message_to_session, get_session
-# from ..deps import get_current_user
-# from ..models import ChatRequest, ChatResponse, Message
-
-# router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/chat", tags=["chat"])
 
 
-# @router.post("/", response_model=ChatResponse)
-# def chat(request: ChatRequest, current_user=Depends(get_current_user)):
-#     session = get_session(request.session_id, user_id=current_user["user_id"])
-#     if not session:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+@router.post("/{session_id}/message")
+def add_message(session_id: str, message: str, current_user=Depends(logged_in)):
+    """Add a message to the current chat"""
 
-#     # Save user message
-#     add_message_to_session(request.session_id, "user", request.message)
+    if not current_user:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+    session = get_session_info(session_id, user_id=current_user.id)
+    if not session:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
-#     # TODO: call Hyu's ML client here later.
-#     ai_text = f"(Dummy response) You said: {request.message}"
-#     add_message_to_session(request.session_id, "ai", ai_text)
+    add_message_to_session(session_id, "user", message)
 
-#     updated_session = get_session(request.session_id, user_id=current_user["user_id"])
-#     messages = [
-#         Message(
-#             role=m["role"],
-#             message=m["message"],
-#             timestamp=m["timestamp"].isoformat(),
-#         )
-#         for m in updated_session.get("messages", [])
-#     ]
+    # TODO: call Hyu's ML client here later.
+    ai_text = f"(Dummy response) You said: {message}"
 
-#     return ChatResponse(session_id=request.session_id, messages=messages)
+    add_message_to_session(session_id, "client", ai_text)
+
+    return status.HTTP_200_OK
+
+
+@router.post("/{session_id}/file")
+def add_file(session_id: str, file: UploadFile, current_user=Depends(logged_in)):
+    """Add a file to the chat"""
+
+    if not current_user:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+    session = get_session_info(session_id, user_id=current_user.id)
+    if not session:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    # add_file_to_session(session_id, file.filename, filepath)
+    # return {"session_id": session_id, "filename": file.filename, "path": filepath}
+
+    return status.HTTP_200_OK
