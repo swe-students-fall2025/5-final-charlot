@@ -20,8 +20,6 @@ dependencies = [
   "pymongo",
   "pydantic-settings",
   "python-dotenv",
-  "python-multipart",
-  "email-validator",
   "httpx"
 ]
 

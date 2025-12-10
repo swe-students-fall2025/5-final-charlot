@@ -1,4 +1,9 @@
+"""Configuration settings for the app"""
+
+import pathlib
 from pydantic_settings import BaseSettings
+
+DIR = pathlib.Path(__file__).parent.parent
 
 
 class Settings(BaseSettings):
@@ -10,7 +15,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     class ConfigDict:
-        env_file = ".env"
+        env_file = DIR / ".env"
 
 
 _settings = None
