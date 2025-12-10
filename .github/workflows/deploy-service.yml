@@ -1,31 +1,36 @@
 name: Deploy ML Service
 
 on:
-    push:
-        branches: ["main"]
-        paths:
-            - "service/**"
+  push:
+    paths:
+      - "service/**"
+  pull_request:
+    paths:
+      - "service/**"
+  workflow_dispatch:
 
 jobs:
-    deploy-service:
-        runs-on: ubuntu-latest
+  deploy-service:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-            - name: Log in to DOCR
-              env:
-                  DO_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-              run: echo "$DO_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
+      - name: Log in to DOCR
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: doctl
+          password: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
 
-            - name: Build amd64 image for ML service
-              working-directory: ./service
-              run: |
-                  docker buildx build \
-                    --platform linux/amd64 \
-                    -t registry.digitalocean.com/charlot-project/ml-service:latest \
-                    .
+      - name: Build amd64 image for ML service
+        working-directory: ./service
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t registry.digitalocean.com/charlot-project/ml-service:latest \
+            .
 
-            - name: Push ML service image
-              run: docker push registry.digitalocean.com/charlot-projecet/ml-service:latest
+      - name: Push ML service image
+        run: docker push registry.digitalocean.com/charlot-project/ml-service:latest
