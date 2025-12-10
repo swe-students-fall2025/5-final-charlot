@@ -11,7 +11,8 @@ from app.db import (
     add_message_to_session,
     get_session_info,
     create_session,
-    list_sessions_for_user
+    list_sessions_for_user,
+    delete_session
 )
 from app.deps import logged_in
 from app.config import get_settings
@@ -90,3 +91,16 @@ def get_session(request: Request, session_id: str, current_user=Depends(logged_i
     return templates.TemplateResponse(
         request, "chat.html", {"current_user": current_user, "sessions": sessions, "data": session}
     )
+
+
+@router.post("/{session_id}/delete")
+def remove_session(session_id: str, current_user=Depends(logged_in)):
+    """Delete a chat session for the current user"""
+    if not current_user or session_id not in current_user.sessions:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    deleted = delete_session(user_id=current_user.id, session_id=session_id)
+    if not deleted:
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)

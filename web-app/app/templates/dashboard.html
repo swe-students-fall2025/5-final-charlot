@@ -21,10 +21,15 @@
         <div class="sessions-grid">
             {% if sessions %}
             {% for session in sessions %}
-            <a href="{{ url_for('get_session', session_id=session.id) }}" class="card session-card">
-                <h3 class="card-title">
-                    {{ session.title }}
-                </h3>
+            <div class="card session-card" style="display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <a href="{{ url_for('get_session', session_id=session.id) }}" class="card-title" style="flex:1;">
+                        {{ session.title }}
+                    </a>
+                    <form method="post" action="{{ url_for('remove_session', session_id=session.id) }}">
+                        <button type="submit" class="btn btn-link" title="Delete chat" style="padding: 0.25rem;">✕</button>
+                    </form>
+                </div>
                 <p class="session-preview">
                     {{ 'Session ' + session.id[:8] + '...' }}
                 </p>
@@ -32,7 +37,7 @@
                     <span>{{ session.date_created }}</span>
                     <span>→</span>
                 </div>
-            </a>
+            </div>
             {% endfor %}
             {% else %}
             <div class="empty-state" style="grid-column: 1 / -1;">

@@ -23,6 +23,9 @@ FROM python:3.13-slim
 
 WORKDIR /service
 
+# Ensure Python output is unbuffered so logs flush immediately
+ENV PYTHONUNBUFFERED=1
+
 # Copy only installed packages from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin

@@ -13,8 +13,13 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
 from agents import build_graph, run_query
-from utils import get_embedder, load_vectorstore, save_vectorstore, build_vectorstore
-from utils.cuad_loader import chunk_text
+from utils import (
+    get_embedder,
+    load_vectorstore,
+    save_vectorstore,
+    build_vectorstore,
+    chunk_text
+)
 
 # os.environ["TOKENIZERS_PARALLELISM"] = "false"
 load_dotenv()
@@ -77,7 +82,7 @@ async def lifespan(app: FastAPI):
 
             # Build with a reasonable number of contracts
             print("Loading documents...")
-            texts, metadatas = load_documents(str(SERVICE_ROOT / "data"), max_contracts=50)
+            texts, metadatas = load_documents(str(SERVICE_ROOT / "data"), max_contracts=20)
 
             print("Creating embeddings...")
             embedder = get_embedder()
