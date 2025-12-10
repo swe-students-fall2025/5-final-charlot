@@ -1,4 +1,37 @@
-# pytest settings that might help... feel free to modify or remove as needed
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "our_flask_app"
+description = "A flask web app"
+version = "0.1.0"
+authors = [
+  { name="Samuel Yang", email="sy3638@nyu.edu" }
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "pydantic",
+  "python-jose",
+  "bcrypt",
+  "pymongo",
+  "pydantic-settings",
+  "python-dotenv",
+  "python-multipart",
+  "email-validator",
+  "httpx"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pylint","pytest-cov"]
+
+[project.urls]
+"Homepage" = "https://github.com/swe-students-fall2025/5-final-charlot"
+"Repository" = "https://github.com/swe-students-fall2025/5-final-charlot.git"
+
 
 [tool.pytest.ini_options]
 minversion = "7.0" # minimum pytest version
@@ -7,5 +40,5 @@ pythonpath = [
   "."
 ]
 testpaths = [
-    "tests",
+  "tests"
 ]

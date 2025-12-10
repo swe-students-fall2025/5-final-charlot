@@ -1,13 +1,16 @@
+from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
-from .auth import decode_access_token
-from .db import find_user_by_id
+from app.auth import decode_access_token
+from app.db import find_user_by_id
+from app import models as models
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
+    """Get current user"""
     try:
         payload = decode_access_token(token)
         user_id: str | None = payload.get("sub")
@@ -30,3 +33,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         )
 
     return user
+
+
+def logged_in(token: str = Depends(oauth2_scheme)) -> Optional[models.User]:
+    """Check if currently logged in"""
+
+    try:
+        return get_current_user(token)
+    except HTTPException:
+        return None
