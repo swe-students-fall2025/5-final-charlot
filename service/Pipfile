@@ -22,6 +22,7 @@ uvicorn = "*"
 pypdf2 = "*"
 python-multipart = "*"
 python-docx = "*"
+datasets = "*"
 
 [dev-packages]
 
