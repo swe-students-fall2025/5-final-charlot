@@ -48,21 +48,17 @@ def find_user_by_id(user_id: str) -> Optional[models.User]:
     return None
 
 
-def create_session(user_id: str) -> Optional[InsertOneResult]:
+def create_session(user_id: str) -> ObjectId:
     """Create a session"""
 
     inserted = sessions_collection.insert_one(
-        {
-            "user_id": ObjectId(user_id),
-            "messages": [],
-            "files": [],
-        }
+        {"user_id": ObjectId(user_id), "messages": [], "date_created": datetime.now()}
     )
     users_collection.find_one_and_update(
         {"_id": ObjectId(user_id)}, {"$push": {"sessions": inserted.inserted_id}}
     )
 
-    return str(inserted.inserted_id)
+    return inserted.inserted_id
 
 
 def list_sessions_for_user(user_id: str) -> Optional[list[models.Session]]:
@@ -103,17 +99,3 @@ def add_message_to_session(session_id: str, role: str, message: str) -> None:
             }
         },
     )
-
-
-# def add_file_to_session(session_id: str, filename: str, path: str) -> None:
-#     sessions_collection.update_one(
-#         {"session_id": session_id},
-#         {
-#             "$push": {
-#                 "files": {
-#                     "filename": filename,
-#                     "path": path,
-#                 }
-#             }
-#         },
-#     )
