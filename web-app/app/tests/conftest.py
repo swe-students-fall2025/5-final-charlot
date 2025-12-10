@@ -37,7 +37,7 @@ def mock_settings():
 def side_effect_user(query: dict):
     """Mock finding a user"""
 
-    if query["username"] == "taken_username":
+    if query.get("username") == "taken_username":
         return {
             "_id": ObjectId(),
             "username": query["username"],
@@ -81,7 +81,7 @@ def mock_logged_out():
 
     with patch(
         "app.deps.get_current_user",
-        side_effect=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        side_effect=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED),
     ) as mock_logged_in:
         yield mock_logged_in
 
@@ -99,5 +99,15 @@ def side_effect_auth(username: str, password: str):
 def mock_authenticate():
     """Mock authenticating login"""
 
-    with patch("app.routers.auth_routes.authenticate_user", side_effect=side_effect_auth) as authenticate_mock:
+    with patch(
+        "app.routers.auth_routes.authenticate_user", side_effect=side_effect_auth
+    ) as authenticate_mock:
         yield authenticate_mock
+
+
+@pytest.fixture
+def mock_access_token():
+    """Mock function to create token"""
+
+    with patch("app.auth.create_access_token") as mock_access_token:
+        yield mock_access_token

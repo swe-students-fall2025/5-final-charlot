@@ -1,22 +1,26 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.auth import authenticate_user, create_access_token, get_password_hash
 from app.config import get_settings
 from app.db import create_user, find_user_by_username
-from app.models import Token, UserCreate
+from app.models import UserCreate
 from app.deps import logged_in
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 _settings = get_settings()
+templates = Jinja2Templates(directory="templates")
 
 
-@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register(user: Annotated[UserCreate, Form()], current_user=Depends(logged_in)):
+@router.post("/register")
+def register(
+    request: Request, user: Annotated[UserCreate, Form()], current_user=Depends(logged_in)
+):
     """Register a new user"""
 
     if current_user:
@@ -24,7 +28,12 @@ def register(user: Annotated[UserCreate, Form()], current_user=Depends(logged_in
 
     existing = find_user_by_username(user.username)
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already registered")
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "Username already registered"},
+            status_code=409,
+        )
 
     password_hash = get_password_hash(user.password)
     created = create_user(user.username, password_hash)
@@ -39,9 +48,11 @@ def register(user: Annotated[UserCreate, Form()], current_user=Depends(logged_in
     return response
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], current_user=Depends(logged_in)
+    request: Request,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    current_user=Depends(logged_in),
 ):
     """Log in a user"""
 
@@ -51,8 +62,11 @@ def login(
     try:
         user = authenticate_user(form_data.username, form_data.password)
     except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password"
+        return templates.TemplateResponse(
+            request,
+            "login.html",
+            {"error": "Incorrect username or password"},
+            status_code=401,
         )
 
     access_token_expires = timedelta(minutes=_settings.access_token_expire_minutes)
@@ -60,7 +74,9 @@ def login(
         data={"sub": user.id},
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token)
+    response = RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
+    response.set_cookie("access_token", access_token, httponly=True)
+    return response
 
 
 @router.get("/register")

@@ -19,11 +19,6 @@ class User(BaseModel):
     sessions: Optional[list[PyObjectId]] = None
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
 class SessionCreateResponse(BaseModel):
     session_id: str
 
