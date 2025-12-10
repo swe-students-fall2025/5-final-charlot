@@ -1,20 +1,31 @@
-FROM python:3.13-slim
+# Build stage - install dependencies
+FROM python:3.13-slim AS builder
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+RUN pip install --no-cache-dir pipenv
+
+COPY Pipfile ./
+
+# Install to system and clean up aggressively
+RUN pipenv install --system --skip-lock && \
+    pip cache purge && \
+    rm -rf /root/.cache /tmp/* /var/tmp/* && \
+    find /usr/local/lib/python3.13 -name '*.pyc' -delete && \
+    find /usr/local/lib/python3.13 -name '__pycache__' -delete
+
+# Runtime stage - smaller final image
+FROM python:3.13-slim
 
 WORKDIR /service
 
-# Copy only requirements first for better caching
-COPY Pipfile ./
-
-# Install dependencies one by one to reduce memory peaks
-RUN pip install --no-cache-dir pipenv && \
-    pipenv install --system --skip-lock && \
-    pip cache purge
+# Copy only installed packages from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
