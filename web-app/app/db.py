@@ -103,7 +103,6 @@ def add_message_to_session(session_id: str, role: str, message: str) -> None:
             }
         },
     )
-    print("hi")
 
 
 # def add_file_to_session(session_id: str, filename: str, path: str) -> None:
