@@ -1,76 +1,38 @@
-# import pytest
-# from fastapi.testclient import TestClient
-# from app.app import app
-# from app.db import users_collection, sessions_collection
+"""Session tests"""
 
-# client = TestClient(app)
+from unittest.mock import patch
 
 
-# @pytest.fixture(autouse=True)
-# def clean_db():
-#     """Clean database before each test"""
-#     users_collection.delete_many({})
-#     sessions_collection.delete_many({})
-#     yield
-#     users_collection.delete_many({})
-#     sessions_collection.delete_many({})
+def test_create_session(test_client, mock_logged_in):
+    """Test creating a new session"""
+
+    with patch(
+        "app.routers.session_routes.create_session", return_value="12345"
+    ) as mock_create_session:
+        resp = test_client.post("/session/create", follow_redirects=False)
+        assert resp.status_code == 302
+        resp.headers["location"] == "/session/get/12345"
+        mock_create_session.asserT_called_once()
 
 
-# @pytest.fixture
-# def auth_header():
-#     """Create a user and return authorization header"""
-#     client.post(
-#         "/auth/register",
-#         json={"email": "user@example.com", "password": "pass123"},
-#     )
-#     login_resp = client.post(
-#         "/auth/login",
-#         data={"username": "user@example.com", "password": "pass123"},
-#         headers={"Content-Type": "application/x-www-form-urlencoded"},
-#     )
-#     token = login_resp.json()["access_token"]
-#     return {"Authorization": f"Bearer {token}"}
+def test_create_session_unauthorized(test_client):
+    """Test that creating session without auth fails"""
+
+    with patch("app.db.create_session") as mock_create_session:
+        resp = test_client.post("/session/create", follow_redirects=False)
+        assert resp.status_code == 302
+        resp.headers["location"] == "/"
+        mock_create_session.assert_not_called()
 
 
-# def test_create_session(auth_header):
-#     """Test creating a new session"""
-#     resp = client.post("/sessions/", headers=auth_header)
-#     assert resp.status_code == 200
-#     data = resp.json()
-#     assert "session_id" in data
+def test_dashboard_unauthorized(test_client):
+    """Test that viewing dashboard without auth fails"""
 
-
-# def test_create_session_unauthorized():
-#     """Test that creating session without auth fails"""
-#     resp = client.post("/sessions/")
-#     assert resp.status_code == 401
-
-
-# def test_list_sessions(auth_header):
-#     """Test listing user's sessions"""
-#     # Create two sessions
-#     resp1 = client.post("/sessions/", headers=auth_header)
-#     session_id_1 = resp1.json()["session_id"]
-
-#     resp2 = client.post("/sessions/", headers=auth_header)
-#     session_id_2 = resp2.json()["session_id"]
-
-#     # List sessions
-#     resp = client.get("/sessions/", headers=auth_header)
-#     assert resp.status_code == 200
-#     data = resp.json()
-#     assert "sessions" in data
-#     assert len(data["sessions"]) == 2
-
-#     session_ids = [s["session_id"] for s in data["sessions"]]
-#     assert session_id_1 in session_ids
-#     assert session_id_2 in session_ids
-
-
-# def test_list_sessions_unauthorized():
-#     """Test that listing sessions without auth fails"""
-#     resp = client.get("/sessions/")
-#     assert resp.status_code == 401
+    with patch("app.db.list_sessions_for_user") as mock_list_sessions:
+        resp = test_client.get("/session/dashboard", follow_redirects=False)
+        assert resp.status_code == 302
+        resp.headers["location"] == "/"
+        mock_list_sessions.assert_not_called()
 
 
 # def test_chat_in_session(auth_header):

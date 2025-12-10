@@ -38,34 +38,53 @@ def find_user_by_username(username: str) -> Optional[models.User]:
     return None
 
 
-def find_user_by_id(user_id: str):
+def find_user_by_id(user_id: str) -> Optional[models.User]:
     """Find a user by id"""
 
-    return models.User.model_validate(users_collection.find_one({"_id": ObjectId(user_id)}))
+    data = users_collection.find_one({"_id": ObjectId(user_id)})
+    if data:
+        return models.User.model_validate(data)
+    return None
 
 
-def create_session(session_id: str, user_id: str) -> None:
+def create_session(user_id: str) -> Optional[InsertOneResult]:
     """Create a session"""
 
-    sessions_collection.insert_one(
+    inserted = sessions_collection.insert_one(
         {
-            "session_id": session_id,
-            "user_id": user_id,
+            "user_id": ObjectId(user_id),
             "messages": [],
             "files": [],
         }
     )
+    users_collection.find_one_and_update(
+        {"_id": ObjectId(user_id)}, {"$push": {"sessions": inserted.inserted_id}}
+    )
+
+    return str(inserted.inserted_id)
 
 
-# def list_sessions_for_user(user_id: str):
-#     return list(sessions_collection.find({"user_id": user_id}))
+def list_sessions_for_user(user_id: str) -> Optional[list[models.Session]]:
+    """List all sessions for a user"""
+
+    user = find_user_by_id(user_id)
+    if not user:
+        return None
+    res = [
+        models.Session.model_validate(sessions_collection.find_one({"_id": ObjectId(session_id)}))
+        for session_id in user.sessions
+    ]
+    return res
 
 
-# def get_session(session_id: str, user_id: str | None = None):
-#     query = {"session_id": session_id}
-#     if user_id is not None:
-#         query["user_id"] = user_id
-#     return sessions_collection.find_one(query)
+def get_session_info(session_id: str, user_id: str) -> Optional[models.Session]:
+    """Get information on a session"""
+
+    query = {"_id": ObjectId(session_id), "user_id": ObjectId(user_id)}
+    session = sessions_collection.find_one(query)
+    if session:
+        return models.Session.model_validate(session)
+    return None
 
 
 # def add_message_to_session(session_id: str, role: str, message: str) -> None:

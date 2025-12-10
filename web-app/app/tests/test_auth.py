@@ -3,11 +3,10 @@
 from unittest.mock import patch
 
 
-def test_register_success(test_client, mock_settings, mock_user):
+def test_register_success(test_client, mock_settings, mock_user, mock_access_token):
     """Test successful user registration"""
 
-    with patch("app.auth.get_password_hash"), patch("app.auth.create_access_token") as mock_token:
-        mock_token.return_value = str()
+    with patch("app.auth.get_password_hash"):
         resp = test_client.post(
             "/auth/register",
             data={"username": "random_username", "password": "random_password"},
@@ -43,7 +42,7 @@ def test_register_no_input(test_client, mock_access_token):
     mock_access_token.assert_not_called()
 
 
-def test_logged_in_register(test_client, mock_oauth2_scheme, mock_logged_in, mock_access_token):
+def test_logged_in_register(test_client, mock_logged_in, mock_access_token):
     """Test register when already logged in"""
 
     resp = test_client.post(
@@ -94,8 +93,8 @@ def test_login_bad_pw(test_client, mock_settings, mock_authenticate, mock_access
     mock_access_token.assert_not_called()
 
 
-def test_logged_in_login(test_client, mock_oauth2_scheme, mock_logged_in, mock_access_token):
-    """Test regiloginster when already logged in"""
+def test_logged_in_login(test_client, mock_logged_in, mock_access_token):
+    """Test login when already logged in"""
 
     resp = test_client.post(
         "/auth/login",

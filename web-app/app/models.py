@@ -21,16 +21,11 @@ class User(BaseModel):
     sessions: Optional[list[PyObjectId]] = None
 
 
-class SessionCreateResponse(BaseModel):
-    session_id: str
-
-
-class SessionSummary(BaseModel):
-    session_id: str
-
-
-class SessionListResponse(BaseModel):
-    sessions: list[SessionSummary]
+class Session(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    user_id: PyObjectId
+    messages: list
+    files: list
 
 
 class ChatRequest(BaseModel):

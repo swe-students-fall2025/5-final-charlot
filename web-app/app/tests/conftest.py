@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 from bson import ObjectId
-from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 import app.models as models
@@ -59,31 +58,11 @@ def mock_user():
 
 
 @pytest.fixture
-def mock_oauth2_scheme():
-    """Mock OAuth2 token to simulate a logged-in user"""
-
-    fake_token = "fake_access_token"
-    with patch("app.deps.oauth2_scheme", return_value=fake_token):
-        yield fake_token
-
-
-@pytest.fixture
 def mock_logged_in():
     """Mock get_current_user succeeds"""
 
     fake_user = models.User(id="id", username="username", password_hash="password", sessions=[])
     with patch("app.deps.get_current_user", return_value=fake_user) as mock_logged_in:
-        yield mock_logged_in
-
-
-@pytest.fixture
-def mock_logged_out():
-    """Mock get_current_user fails"""
-
-    with patch(
-        "app.deps.get_current_user",
-        side_effect=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED),
-    ) as mock_logged_in:
         yield mock_logged_in
 
 
