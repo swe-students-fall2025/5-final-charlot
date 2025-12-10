@@ -1,12 +1,13 @@
 """Mocks client, db, and user"""
 
+from unittest.mock import Mock, patch
+
+import pytest
 from bson import ObjectId
 from fastapi import HTTPException, status
-import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
-import app.models as models
 
+import app.models as models
 from app import create_app
 
 

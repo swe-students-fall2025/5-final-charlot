@@ -1,10 +1,11 @@
 from typing import Optional
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from app import models as models
 from app.auth import decode_access_token
 from app.db import find_user_by_id
-from app import models as models
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 

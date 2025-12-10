@@ -74,8 +74,7 @@ def test_login_bad_uname(test_client, mock_settings, mock_authenticate, mock_acc
     """Test incorrect login"""
 
     resp = test_client.post(
-        "/auth/login",
-        data={"username": "random_username", "password": "correct_password"}
+        "/auth/login", data={"username": "random_username", "password": "correct_password"}
     )
     assert resp.status_code == 401
     html = resp.text
@@ -87,8 +86,7 @@ def test_login_bad_pw(test_client, mock_settings, mock_authenticate, mock_access
     """Test incorrect login"""
 
     resp = test_client.post(
-        "/auth/login",
-        data={"username": "taken_username", "password": "incorrect_password"}
+        "/auth/login", data={"username": "taken_username", "password": "incorrect_password"}
     )
     assert resp.status_code == 401
     html = resp.text
@@ -102,7 +100,7 @@ def test_logged_in_login(test_client, mock_oauth2_scheme, mock_logged_in, mock_a
     resp = test_client.post(
         "/auth/login",
         data={"username": "random_username", "password": "random_password"},
-        follow_redirects=False
+        follow_redirects=False,
     )
     assert resp.status_code == 302
     assert resp.headers["location"] == "/"

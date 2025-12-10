@@ -4,13 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.templating import Jinja2Templates
 
 from app.auth import authenticate_user, create_access_token, get_password_hash
 from app.config import get_settings
 from app.db import create_user, find_user_by_username
-from app.models import UserCreate
 from app.deps import logged_in
-from fastapi.templating import Jinja2Templates
+from app.models import UserCreate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 _settings = get_settings()

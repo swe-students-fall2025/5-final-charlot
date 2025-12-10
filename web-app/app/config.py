@@ -1,6 +1,7 @@
 """Configuration settings for the app"""
 
 import pathlib
+
 from pydantic_settings import BaseSettings
 
 DIR = pathlib.Path(__file__).parent.parent
