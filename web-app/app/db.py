@@ -99,3 +99,18 @@ def add_message_to_session(session_id: str, role: str, message: str) -> None:
             }
         },
     )
+
+
+def delete_session(user_id: str, session_id: str) -> bool:
+    """Delete a session and remove its reference from the user."""
+    query = {"_id": ObjectId(session_id), "user_id": ObjectId(user_id)}
+    deleted = sessions_collection.delete_one(query)
+
+    if deleted.deleted_count:
+        users_collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$pull": {"sessions": ObjectId(session_id)}}
+        )
+        return True
+
+    return False

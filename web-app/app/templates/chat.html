@@ -9,6 +9,8 @@
         overflow: hidden;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -28,12 +30,19 @@
         </div>
         <div class="session-list">
             {% for session in sessions %}
-            <a href="{{ url_for('get_session', session_id=session.id) }}">
-                <div class="session-item-title">
-                    {{ session.title }}
-                </div>
-                <div class="session-item-date">{{ session.date_created.strftime("%Y-%m-%d") }}</div>
-            </a>
+            <div class="session-item">
+                <a href="{{ url_for('get_session', session_id=session.id) }}">
+                    <div class="session-item-title">
+                        {{ session.title }}
+                    </div>
+                    <div class="session-item-date">{{ session.date_created.strftime("%Y-%m-%d") }}</div>
+                </a>
+                <form method="post" action="{{ url_for('remove_session', session_id=session.id) }}" style="margin-left:auto;">
+                    <button type="submit" class="session-delete-btn" title="Delete chat">
+                        ✕
+                    </button>
+                </form>
+            </div>
             {% else %}
             <div style="padding: 1rem; color: var(--text-muted); text-align: center; font-size: 0.9rem;">
                 No sessions yet
@@ -111,6 +120,22 @@
         }
     }
 
+    function renderMessageHtml(text) {
+        // Render markdown safely
+        if (window.marked && window.DOMPurify) {
+            const html = marked.parse(text ?? "", { breaks: true });
+            return DOMPurify.sanitize(html);
+        }
+        // Fallback escape
+        const escaped = (text ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        return escaped.replace(/\n/g, "<br>");
+    }
+
     function appendMessage(role, message, timestamp) {
         const dateObj = new Date(timestamp);
         const formattedDate =
@@ -125,7 +150,7 @@
 
         const content = document.createElement("div");
         content.className = "message-content";
-        content.innerHTML = message;
+        content.innerHTML = renderMessageHtml(message);
 
         const time = document.createElement("div");
         time.className = "message-time";
@@ -137,5 +162,11 @@
         container.appendChild(wrapper);
         container.scrollTop = container.scrollHeight;
     }
+
+    // Re-render existing messages with markdown support
+    document.querySelectorAll(".message-content").forEach(el => {
+        const raw = el.textContent;
+        el.innerHTML = renderMessageHtml(raw);
+    });
 </script>
 {% endblock %}

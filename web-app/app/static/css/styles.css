@@ -515,6 +515,14 @@ h3 {
     padding: 0.5rem;
 }
 
+.session-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+}
+
 .session-item:hover {
     background: var(--bg-input);
 }
@@ -538,6 +546,18 @@ h3 {
 
 .session-item.active .session-item-date {
     color: rgba(255, 255, 255, 0.7);
+}
+
+.session-delete-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
+.session-delete-btn:hover {
+    color: var(--text);
 }
 
 .chat-main {
