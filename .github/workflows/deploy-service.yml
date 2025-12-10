@@ -17,7 +17,7 @@ jobs:
             - name: Log in to DOCR
               env:
                   DO_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-              run: echo "$DO_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
+              run: echo "$DO_TOKEN" | doctl registry login --access-token -
 
             - name: Build amd64 image for ML service
               working-directory: ./service

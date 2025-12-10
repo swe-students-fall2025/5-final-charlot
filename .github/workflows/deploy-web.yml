@@ -23,7 +23,9 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
 
       - name: Log in to DOCR
-        run: doctl registry login
+        env:
+          DO_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
+        run: echo "$DO_TOKEN" | doctl registry login --access-token -
 
       - name: Build amd64 image
         working-directory: ./web-app

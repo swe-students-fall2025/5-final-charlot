@@ -2,8 +2,9 @@
 
 Containerized legal assistant that ingests contracts, builds vector indexes, and answers questions with retrieval-augmented generation. See [instructions](./instructions.md) for course requirements.
 
-[![Service CI](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/backend-ci.yml)
-[![Web App CI](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/deploy-web.yml/badge.svg)](https://github.com/swe-students-fall2025/5-final-charlot/workflows/deploy-web.yml)
+[![CI](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/backend-ci.yml)
+[![Service CI](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/deploy-service.yml/badge.svg)](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/deploy-service.yml)
+[![Web App CI](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/deploy-web.yml/badge.svg)](https://github.com/swe-students-fall2025/5-final-charlot/actions/workflows/deploy-web.yml)
 
 ## Team Members
 
@@ -30,7 +31,7 @@ Containerized legal assistant that ingests contracts, builds vector indexes, and
 
 **Legal Contract Assistant** is a two-service app that lets users upload contracts, builds embeddings on the CUAD dataset plus user docs, and answers questions with retrieval-augmented generation.
 
-- Live demo: https://starfish-app-p5qjw.ondigitalocean.app/
+- Live demo: [https://starfish-app-p5qjw.ondigitalocean.app/](https://starfish-app-p5qjw.ondigitalocean.app/)
 
 ### What It Does
 
