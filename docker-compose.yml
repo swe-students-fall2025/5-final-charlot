@@ -1,0 +1,46 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=legal_ai
+
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    container_name: web-app
+    ports:
+      - "9000:9000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB=legal_ai
+      - JWT_SECRET_KEY=supersecret_local_dev_key
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - ML_SERVICE_URL=http://service:8000
+    depends_on:
+      - mongodb
+      - service
+
+  service:
+    build:
+      context: ./service
+      dockerfile: Dockerfile
+    container_name: service
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - VECTOR_DB_PATH=/app/data/embeddings/faiss_index
+      - PORT=8000
+    volumes:
+      - service_data:/app/data
+
+volumes:
+  mongodb_data:
+  service_data:
