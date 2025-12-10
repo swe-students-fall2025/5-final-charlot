@@ -11,7 +11,7 @@ WORKDIR /service
 
 COPY Pipfile Pipfile.lock ./
 
-RUN pipenv install --system --deploy --ignore-pipfile
+RUN pipenv install --system --skip-lock
 
 COPY . .
 
