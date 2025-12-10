@@ -22,15 +22,6 @@ jobs:
               with:
                   python-version: 3.13
 
-            - name: Install dependencies (caching)
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      ~/.cache/pip
-                  key: ${{ runner.os }}-backend-pip-${{ hashFiles('backend/requirements.txt') }}
-                  restore-keys: |
-                      ${{ runner.os }}-backend-pip-
-
             - name: Install backend Python packages
               working-directory: ./web-app
               run: |
