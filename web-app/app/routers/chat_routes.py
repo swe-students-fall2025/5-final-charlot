@@ -1,8 +1,9 @@
 """Chat routes"""
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+import requests
 
 from app.db import (
     add_message_to_session,
@@ -30,12 +31,17 @@ def add_message(
 
     add_message_to_session(session_id, "user", message)
 
-    # TODO: call Hyu's ML client here later.
-    ai_text = f"(Dummy response) You said: {message}"
+    resp = requests.post(
+        url=f"{CLIENT_URL}/QUERY",
+        JSON={"query": message}
+    )
+    json = resp.json()
 
-    add_message_to_session(session_id, "client", ai_text)
+    response = json["final_explanation"]
 
-    return status.HTTP_200_OK
+    add_message_to_session(session_id, "client", response)
+
+    return JSONResponse({"response": response})
 
 
 @router.post("/file")
@@ -45,11 +51,14 @@ def send_file(file: UploadFile, current_user=Depends(logged_in)):
     if not current_user:
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
-    contents = file.file.read()
     session_id = create_session(current_user.id)
     add_message_to_session(session_id, "user", f"You sent a file: {file.filename}")
 
-    # TODO: send file to hyunkyu
+    requests.post(
+        url=f"{CLIENT_URL}/index-document",
+        file=file,
+        data={"user_id": current_user.id, "session_id": session_id}
+    )
 
     return RedirectResponse(f"/chat/get/{str(session_id)}", status_code=status.HTTP_303_SEE_OTHER)
 

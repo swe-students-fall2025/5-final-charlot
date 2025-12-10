@@ -15,7 +15,7 @@
             <form action="{{ url_for('send_file') }}" method="post" enctype="multipart/form-data">
 
                 <div class="upload-area" onclick="document.getElementById('file-input').click();">
-                    <input type="file" id="file-input" name="file" accept=".pdf,.txt,.doc,.docx" style="display: none;"
+                    <input type="file" id="file-input" name="file" accept=".pdf,.txt" style="display: none;"
                         onchange="updateFileName(this)" required>
                     <div class="upload-icon">📁</div>
                     <h3 id="upload-text">Click to select a file</h3>

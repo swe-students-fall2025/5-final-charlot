@@ -84,13 +84,15 @@
         }
         const formData = new FormData();
         formData.append("message", message);
+        appendMessage("user", message, Date.now());
+        textarea.value = "";
         const res = await fetch(endpoint, {
             method: "POST",
             body: formData
         })
         if (res.ok) {
-            textarea.value = "";
-            appendMessage("user", message, Date.now());
+            json = res.json()
+            appendMessage("client", json["response"], Date.now())
         }
     }
 
